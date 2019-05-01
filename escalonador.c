@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+
 #include "escalonador.h"
 
 
 int main(int argc, char const *argv[]){
-  
+    int pid;
     char arg_error_msg[] = "Como argumento insira qual topologia deseja usar no escalonador:\n0: hypercube\n1: torus\n2: fat tree\nSeu comando deve ser: escalonador <topologia> &\n";
 
     if (argc < 2 || (argc > 4 && strcmp(argv[2],"&"))) {
@@ -60,9 +64,32 @@ int main(int argc, char const *argv[]){
         
     }
     
+    switch (topology){ 
+        
+        case HYPERCUBE:
+            break;
+        case TORUS:
+            break;
+        case FATTREE:
+            for(int i = 0; i < 15; i++){
+                pid = fork();
+                if (pid == 0) {
+                    break;
+                }else if (pid < 0){
+                    perror("fork");
+                    exit(1);
+                }
+                
+                fattree[i].pid = pid;
+            }
+                
+            break;
+    }
 
-    print_topology(FATTREE,fattree);
-
-    printf("%d bla\n", topology);
+    if (pid != 0) {
+        print_topology(FATTREE,fattree);
+    }
+    
+    
     return 0;
 }

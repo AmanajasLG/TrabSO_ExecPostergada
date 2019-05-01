@@ -6,7 +6,7 @@
 
 
  /*Definindo o cabeçalho*/
-enum  state{
+enum state{
     BLOCKED = 0,
     READY,
     RUNNING,
@@ -36,18 +36,26 @@ struct tree_nodo{
     int right_extra;
     int left;
     int left_extra;
+    int state;
 };
 
 typedef struct tree_nodo TreeNodo;
 
 
+
 void print_topology(int type, TreeNodo* fattree){
-    if(type == FATTREE){
-        for(int i = 0; i < 15; i++){
-            printf("nodo [%d] pai: %d dir %d|%d esq %d|%d\n", i, fattree[i].parent, fattree[i].right, fattree[i].right_extra, fattree[i].left, fattree[i].left_extra );
-        }
-        
+
+     switch (type){ 
+        case HYPERCUBE:
+            break;
+        case TORUS:
+            break;
+        case FATTREE:
+            for(int i = 0; i < 15; i++)
+                printf("nodo [%d] pid %d pai: %d dir %d|%d esq %d|%d\n", i,fattree[i].pid, fattree[i].parent, fattree[i].right, fattree[i].right_extra, fattree[i].left, fattree[i].left_extra );            
+            break;
     }
+
 }
 
 #endif 
