@@ -4,18 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define KEY 0x3718
+
+#define KEY 0x03718
 
 
 struct msg{
-    long mtype;
-    struct postergado* post;
+    long sec;
+    char arq_executavel[100];
 };
 
-struct postergado {
-    char arq_executavel[100];
-    int sec;
-};
  /*Definindo o cabeçalho*/
 enum state{
     BLOCKED = 0,
