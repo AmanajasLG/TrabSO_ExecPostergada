@@ -4,7 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define KEY 0x3718
 
+
+struct msg{
+    long mtype;
+    struct postergado* post;
+};
+
+struct postergado {
+    char arq_executavel[100];
+    int sec;
+};
  /*Definindo o cabeçalho*/
 enum state{
     BLOCKED = 0,
@@ -40,8 +51,6 @@ struct tree_nodo{
 };
 
 typedef struct tree_nodo TreeNodo;
-
-
 
 void print_topology(int type, TreeNodo* fattree){
 
