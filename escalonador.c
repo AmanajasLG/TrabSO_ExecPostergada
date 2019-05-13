@@ -44,10 +44,10 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    printf("msgid_exec_post = %d\n", msgid_exec_post);
-    printf("msgid_escale = %d\n", msgid_escale);
+    // printf("msgid_exec_post = %d\n", msgid_exec_post);
+    // printf("msgid_escale = %d\n", msgid_escale);
 
-    sleep(10);
+    //sleep(10);
 
     Nodo hypercube[16];
     Nodo torus[4][4];
@@ -86,17 +86,20 @@ int main(int argc, char const *argv[])
         break;
     }
 
-    /* printf("passou");
-    msgrcv(msgid_exec_post, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, 0);
-    printf("chegou alguma msg %d\n", errno); */
-
     if (pid == 0)
     {
     }
 
     if (pid != 0)
     {
-        print_topology(FATTREE, fattree);
+        while (1)
+        {
+            printf("passou\n");
+            msgrcv(msgid_exec_post, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, 0);
+            printf("chegou alguma msg %d\n", errno);
+            printf("%ld %s\n", msg_2_rcv.sec, msg_2_rcv.arq_executavel);
+            // print_topology(FATTREE, fattree);
+        }
     }
 
     struct msqid_ds *buf;
