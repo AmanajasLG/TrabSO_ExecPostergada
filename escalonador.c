@@ -1,22 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/types.h>
-#include <sys/msg.h>
-#include <sys/errno.h>
-#include <sys/wait.h>
-#include <time.h>
-
 #include "escalonador.h"
 
 int main(int argc, char const *argv[])
 {
-    int pid, msgid_exec_post, msgid_escale, current_time;
-    struct msg msg_2_rcv;
-    Queue* ready_queue = NULL;
+    int pid, msgid_exec_post, current_time, nodo0_pid, alarm_countdown;
+    struct msg msg_from_exec_post;
+    struct msg_nodo msg_from_nodo0;
+    
+    signal(SIGALRM, manda_exec_prog);
  
     char arg_error_msg[] = "Como argumento insira qual topologia deseja usar no escalonador:\n0: hypercube\n1: torus\n2: fat tree\nSeu comando deve ser: escalonador <topologia> &\n";
 
@@ -49,8 +39,9 @@ int main(int argc, char const *argv[])
     }
     
     ready_queue = start_queue();
+    run_queue = start_queue();
 
-    if(ready_queue == NULL){
+    if(ready_queue == NULL || run_queue == NULL){
         printf("Fila não criada\n");
         exit(1);
     }
@@ -74,8 +65,24 @@ int main(int argc, char const *argv[])
 
         break;
     case TORUS:
-        create_torus(torus);
-
+        for (int i = 0; i < 4; i++){
+            for (int j = 0; j < 4; j++){
+                pid = fork();
+                if(pid != 0){
+                    torus[i][j].pid = pid;
+                }
+                if (pid == 0)
+                    break;
+                else if (pid < 0){
+                    perror("fork");
+                    exit(1);
+                }
+            }
+            if (pid == 0)
+                break;
+            
+        }
+        
         break;
     case FATTREE:
         create_tree(fattree);
@@ -84,44 +91,63 @@ int main(int argc, char const *argv[])
         {
             pid = fork();
             if (pid == 0)
-            {
                 break;
-            }
             else if (pid < 0)
             {
                 perror("fork");
                 exit(1);
             }
-
+            if(i == 0)
+                msg_2_nodo0.pid = pid;
+            
             fattree[i].pid = pid;
         }
 
         break;
     }
-
+    
     if (pid != 0){
+        
+
+
+        msgrcv(msgid_exec_post, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, 0);
+        insert_queue(ready_queue, msg_from_exec_post);  
+        print_queue(ready_queue);          
+        strcpy(msg_2_nodo0.arq_executavel, msg_from_exec_post.arq_executavel);
+        current_time = alarm((int) msg_from_exec_post.sec);
+        
         while (1){      
             
-            msgrcv(msgid_exec_post, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, 0);
-            insert_queue(ready_queue, msg_2_rcv);  
-            print_queue(ready_queue);          
-            // current_time = alarm((int) msg_2_rcv.sec);
-            // if (current_time == 0){
-            //     //executa o prox oque chegou agr
-            // }else if(msg_2_rcv < current_time ){
-            //     ready_queue->init;
-            //     alarm();
-
-            // }
+            msgrcv(msgid_exec_post, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, IPC_NOWAIT);
+            msgrcv(msgid_escale, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), nodo0_pid, IPC_NOWAIT);
             
-            
+            // -1 significa que n chegou mensagem
+            if (msg_from_exec_post.sec != -1){
+                alarm_countdown = alarm(0);
 
-            // printf("chegou alguma msg %d\n", errno);
-            // printf("%ld %s\n", msg_2_rcv.sec, msg_2_rcv.arq_executavel);
-            // if(ready_queue->next == NULL){
-            //     continue;
-            // }
-            // print_topology(FATTREE, fattree);
+                if( msg_from_exec_post.sec < alarm_countdown  ){
+                    insert_queue_first_pos(ready_queue, msg_from_exec_post);
+                    print_queue(ready_queue); 
+                    alarm(msg_from_exec_post.sec );
+                }else{
+                    insert_queue_first_pos(ready_queue, msg_from_exec_post);
+                    print_queue(ready_queue); 
+                    insert_queue(ready_queue, msg_from_exec_post);  
+                    alarm(alarm_countdown );
+                }
+               msg_from_exec_post.sec = -1;     
+            }
+    
+            if(msg_from_nodo0.pid != -1){
+                is_executing = false;
+
+                if (!is_empty(run_queue)){
+                    strcpy(msg_2_nodo0.arq_executavel, run_queue->init);
+                    manda_exec_prog();
+                }
+                   
+                msg_from_nodo0.pid = -1;
+            }
         }
     }
 

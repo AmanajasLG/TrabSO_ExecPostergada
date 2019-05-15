@@ -3,12 +3,34 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/types.h>
+#include <sys/msg.h>
+#include <sys/errno.h>
+#include <sys/wait.h>
+#include <sys/signal.h>
+#include <time.h>
+#include <stdbool.h>
 
 #define KEY_EXEC_POST 0x03718
 #define KEY_ESCALE 0x6659
 
+Queue* ready_queue = NULL,* run_queue = NULL;
+
+struct msg_nodo msg_2_nodo0;
+int msgid_escale;
+bool is_executing = false;
+
 struct msg{
     long sec;
+    char arq_executavel[100];
+};
+
+struct msg_nodo{
+    long pid;
     char arq_executavel[100];
 };
 
@@ -53,8 +75,7 @@ enum topology
 };
 typedef enum topology TopologyTypes;
 
-struct nodo
-{
+struct nodo{
     int pid;
     int state;
 };
@@ -66,9 +87,7 @@ struct tree_nodo
     int pid;
     int parent;
     int right;
-    int right_extra;
     int left;
-    int left_extra;
     int state;
 };
 
@@ -92,7 +111,6 @@ void print_topology(int type, TreeNodo *fattree)
 }
 
 void create_hypercube(Nodo hypercube[16]) {}
-void create_torus(Nodo torus[4][4]) {}
 
 void create_tree(TreeNodo fattree[15])
 {
@@ -110,11 +128,9 @@ void create_tree(TreeNodo fattree[15])
 
             fattree[right_index].parent = i;
             fattree[i].right = right_index;
-            fattree[i].right_extra = right_index;
 
             fattree[left_index].parent = i;
             fattree[i].left = left_index;
-            fattree[i].left_extra = left_index;
         }
         else
         {
@@ -130,9 +146,7 @@ void create_tree(TreeNodo fattree[15])
             }
 
             fattree[right_index].parent = i;
-            fattree[i].right_extra = -1;
             fattree[left_index].parent = i;
-            fattree[i].left_extra = -1;
         }
     }
 }
@@ -143,6 +157,33 @@ Queue* start_queue(){
         ready_queue->init = NULL;
     }
     return ready_queue;
+}
+
+Queue* insert_queue_first_pos(Queue* ready_queue, struct msg insert_msg){
+
+    if (ready_queue == NULL)
+        return 0;
+    struct queue_nodo* new_nodo = (struct queue_nodo *) malloc(sizeof(struct queue_nodo));
+    
+    if(new_nodo == NULL)
+        return 0;
+
+    new_nodo->sec = insert_msg.sec; 
+    strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
+    new_nodo->next = NULL;
+
+
+    if(ready_queue->init == NULL){
+        ready_queue->init = new_nodo;
+    }else{
+        struct queue_nodo* second_nodo = ready_queue->init;
+        ready_queue->init = new_nodo;
+        new_nodo->next = second_nodo;
+
+    }
+    
+    return 1;
+
 }
 
 int is_empty(Queue* ready_queue){
@@ -236,5 +277,15 @@ void print_queue(Queue* ready_queue){
 
     printf("\n");
 
+}
+
+void manda_exec_prog(){
+    if(!is_executing){
+        msgsnd(msgid_escale, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
+        is_executing = true;
+    }else{
+        // coloca prog na fila
+    }
+    
 }
 #endif
