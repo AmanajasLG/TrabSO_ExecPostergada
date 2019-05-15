@@ -97,6 +97,7 @@ int main(int argc, char const *argv[])
                 perror("fork");
                 exit(1);
             }
+            
             if(i == 0)
                 msg_2_nodo0.pid = pid;
             
