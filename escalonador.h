@@ -76,6 +76,7 @@ enum topology
     HYPERCUBE = 0,
     TORUS,
     FATTREE,
+    SINGLENODO,
 };
 typedef enum topology TopologyTypes;
 
@@ -90,7 +91,7 @@ struct nodo
 {
     int pid;
     int state;
-    Neighbor neighbor[4];
+    int neighbor[4];
 };
 
 typedef struct nodo NodoHypercube;
@@ -130,10 +131,10 @@ void create_hypercube(NodoHypercube hypercube[16])
     for (int i = 0; i < 16; i++)
     {
 
-        hypercube[i].neighbor[0].x = i ^ 0b0001;
-        hypercube[i].neighbor[1].x = i ^ 0b0010;
-        hypercube[i].neighbor[2].x = i ^ 0b0100;
-        hypercube[i].neighbor[3].x = i ^ 0b1000;
+        hypercube[i].neighbor[0] = i ^ 0b0001;
+        hypercube[i].neighbor[1] = i ^ 0b0010;
+        hypercube[i].neighbor[2] = i ^ 0b0100;
+        hypercube[i].neighbor[3] = i ^ 0b1000;
     }
 }
 
@@ -145,7 +146,7 @@ void print_hypercube(NodoHypercube hypercube[16])
 
         for (int j = 0; j < 4; j++)
         {
-            printf("no %d - vizinho %d: %d\n ", i, j, hypercube[i].neighbor[j].x);
+            printf("no %d - vizinho %d: %d\n ", i, j, hypercube[i].neighbor[j]);
         }
         printf("\n\n");
     }
@@ -153,22 +154,48 @@ void print_hypercube(NodoHypercube hypercube[16])
 
 void create_torus(NodoTorus torus[4][4])
 {
+    char xx[12], yy[12];
+    int x, y;
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
 
-            torus[i][j].neighbor[0].x = i;
-            torus[i][j].neighbor[0].y = abs((j - 3) % 4);
+            x = i;
+            y = abs((j - 3) % 4);
 
-            torus[i][j].neighbor[1].x = i;
-            torus[i][j].neighbor[1].y = j % 2 == 0 ? (j + 1) % 4 : abs((j - 1) % 4);
+            sprintf(xx, "%d", x);
+            sprintf(yy, "%d", y);
 
-            torus[i][j].neighbor[2].x = abs((i - 3) % 4);
-            torus[i][j].neighbor[2].y = j;
+            strcat(xx, yy);
+            torus[i][j].neighbor[0] = atol(xx);
 
-            torus[i][j].neighbor[3].x = i % 2 == 0 ? (i + 1) % 4 : abs((i - 1) % 4);
-            torus[i][j].neighbor[3].y = j;
+            x = i;
+            y = j % 2 == 0 ? (j + 1) % 4 : abs((j - 1) % 4);
+
+            sprintf(xx, "%d", x);
+            sprintf(yy, "%d", y);
+
+            strcat(xx, yy);
+            torus[i][j].neighbor[1] = atol(xx);
+
+            x = abs((i - 3) % 4);
+            y = j;
+
+            sprintf(xx, "%d", x);
+            sprintf(yy, "%d", y);
+
+            strcat(xx, yy);
+            torus[i][j].neighbor[2] = atol(xx);
+
+            x = i % 2 == 0 ? (i + 1) % 4 : abs((i - 1) % 4);
+            y = j;
+
+            sprintf(xx, "%d", x);
+            sprintf(yy, "%d", y);
+
+            strcat(xx, yy);
+            torus[i][j].neighbor[3] = atol(xx);
         }
     }
 }
@@ -181,7 +208,7 @@ void print_torus(NodoTorus torus[4][4])
         {
             for (int k = 0; k < 4; k++)
             {
-                printf("no [%d][%d] - vizinho %d: [%d][%d]\n", i, j, k, torus[i][j].neighbor[k].x, torus[i][j].neighbor[k].y);
+                printf("no [%d][%d] - vizinho %d: [%d]\n", i, j, k, torus[i][j].neighbor[k]);
             }
 
             printf("\n\n");

@@ -55,7 +55,6 @@ int main(int argc, char const *argv[])
     NodoHypercube hypercube[16];
     NodoTorus torus[4][4];
     TreeNodo fattree[15];
-
     switch (topology)
     {
 
@@ -109,6 +108,8 @@ int main(int argc, char const *argv[])
         }
 
         break;
+    case SINGLENODO:
+        break;
     }
 
     exit(0);
@@ -152,7 +153,7 @@ int main(int argc, char const *argv[])
             if (msg_from_nodo0.pid != -1)
             {
                 exec_end = time(NULL);
-                printf("Tempo total de exec: %d s", exec_init - exec_end);
+                // printf("Tempo total de exec: %d s", exec_init - exec_end);
                 is_executing = false;
 
                 if (!is_empty(run_queue))
