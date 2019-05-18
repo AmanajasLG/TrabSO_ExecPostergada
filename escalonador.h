@@ -1,113 +1,12 @@
 #ifndef ESCALONADOR_H_
+
 #define ESCALONADOR_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/types.h>
-#include <sys/msg.h>
-#include <sys/errno.h>
-#include <sys/wait.h>
-#include <sys/signal.h>
-#include <time.h>
-#include <stdbool.h>
-
-#define KEY_EXEC_POST 0x03718
-#define KEY_ESCALE 0x6659
-
+#include "includes.h"
 struct msg_nodo msg_2_nodo0;
-int msgid_escale;
+int msgid_nodo_snd_file;
 bool is_executing = false;
 time_t exec_init;
-
-struct msg
-{
-    long sec;
-    char arq_executavel[100];
-};
-
-struct msg_nodo
-{
-    long pid;
-    char arq_executavel[100];
-};
-
-struct end_msg
-{
-    long pid;
-    int pid_end;
-};
-
-struct queue_nodo
-{
-    int sec;
-    char arq_executavel[100];
-    struct queue_nodo *next;
-};
-
-struct queue
-{
-    struct queue_nodo *init;
-};
-typedef struct queue Queue;
-
-struct execution_node
-{
-    long sec;
-    char arq_executavel[100];
-    time_t exec_init;
-    time_t exec_end;
-};
-
-/*Definindo o cabeçalho*/
-enum state
-{
-    BLOCKED = 0,
-    READY,
-    RUNNING,
-};
-typedef enum states StateTypes;
-
-enum topology
-{
-    HYPERCUBE = 0,
-    TORUS,
-    FATTREE,
-    SINGLENODO,
-};
-typedef enum topology TopologyTypes;
-
-struct neighbor
-{
-    int x;
-    int y;
-};
-
-typedef struct neighbor Neighbor;
-struct nodo
-{
-    int pid;
-    int state;
-    int neighbor[4];
-};
-
-typedef struct nodo NodoHypercube;
-typedef struct nodo NodoTorus;
-
-struct tree_nodo
-{
-    int pid;
-    int parent;
-    int right;
-    int left;
-    int state;
-};
-
-typedef struct tree_nodo TreeNodo;
-
 Queue *ready_queue = NULL, *run_queue = NULL;
 
 void print_topology(int type, TreeNodo *fattree)
@@ -276,6 +175,7 @@ int insert_queue_first_pos(Queue *ready_queue, struct msg insert_msg)
         return 0;
 
     new_nodo->sec = insert_msg.sec;
+    new_nodo->origin_sec = insert_msg.sec;
     strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
     new_nodo->next = NULL;
 
@@ -339,6 +239,8 @@ int insert_queue(Queue *ready_queue, struct msg insert_msg)
 
     if (new_nodo == NULL)
         return 0;
+
+    new_nodo->origin_sec = insert_msg.sec;
     new_nodo->sec = insert_msg.sec;
     strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
     new_nodo->next = NULL;
@@ -393,7 +295,7 @@ void print_queue(Queue *ready_queue)
     {
         do
         {
-            printf("Nodo %d -> ", tmp->sec);
+            printf("Nodo %d(%d) -> ", tmp->sec, tmp->origin_sec);
             tmp = tmp->next;
         } while (tmp != NULL);
     }
@@ -403,15 +305,48 @@ void print_queue(Queue *ready_queue)
 
 void manda_exec_prog()
 {
+    printf("passou nessa caralha\n");
+    msg_2_nodo0.pid = 0;
     if (!is_executing)
     {
-        msgsnd(msgid_escale, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
+        printf("antes: %d\n", errno);
+        printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
+        msgid_nodo_snd_file = msgget(KEY_NODO_END, 0x1FF);
+        printf("msg id nodo send file %d\n", msgid_nodo_snd_file);
+        msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
+        printf("depois : %d\n", errno);
         is_executing = true;
         exec_init = time(NULL);
+        printf("porra\n");
     }
     else
     {
+        printf("vtnc\n");
         // coloca prog na fila
+    }
+}
+
+void att_time(int alarm_countdown, Queue *ready_queue)
+{
+    int sub_time = 0;
+
+    struct queue_nodo *tmp = ready_queue->init;
+
+    if (tmp != NULL)
+    {
+        sub_time = tmp->sec - alarm_countdown;
+        tmp->sec = alarm_countdown;
+
+        if (tmp->next != NULL)
+        {
+            tmp = tmp->next;
+
+            do
+            {
+                tmp->sec -= sub_time;
+                tmp = tmp->next;
+            } while (tmp != NULL);
+        }
     }
 }
 
