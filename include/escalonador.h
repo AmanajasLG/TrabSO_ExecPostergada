@@ -244,10 +244,10 @@ int insert_queue(Queue *ready_queue, struct msg insert_msg)
     new_nodo->sec = insert_msg.sec;
     strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
     new_nodo->next = NULL;
-    printf("New nodo sec: %d file: %s\n", new_nodo->sec, new_nodo->arq_executavel);
+    printf("[escalonador][insert_queue] New nodo sec: %d file: %s\n", new_nodo->sec, new_nodo->arq_executavel);
     if (ready_queue->init == NULL)
     { //empty queue
-        printf("ready_queue->init null :(\n");
+        printf("[escalonador][insert_queue] ready_queue->init null :(\n");
         ready_queue->init = new_nodo;
     }
     else
@@ -290,6 +290,7 @@ int insert_queue(Queue *ready_queue, struct msg insert_msg)
 }
 void print_queue(Queue *ready_queue)
 {
+    printf("[escalonador][print_queue]"); 
     struct queue_nodo *tmp = ready_queue->init;
     if (!is_empty(ready_queue))
     {
@@ -305,16 +306,16 @@ void print_queue(Queue *ready_queue)
 
 void manda_exec_prog()
 {
-    printf("passou nessa caralha\n");
-    msg_2_nodo0.pid = 0;
+    printf("[escalonador][manda_exec_prog] passou nessa caralha\n");
+    msg_2_nodo0.pid = 1;
     if (!is_executing)
     {
-        printf("antes: %d\n", errno);
-        printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
+        printf("[escalonador][manda_exec_prog] msg_2_nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
+
         msgid_nodo_snd_file = msgget(KEY_NODO_END, 0x1FF);
-        printf("msg id nodo send file %d\n", msgid_nodo_snd_file);
+        printf("[escalonador][manda_exec_prog] msgid_nodo_snd_file %d\n", msgid_nodo_snd_file);
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
-        printf("depois : %d\n", errno);
+
         is_executing = true;
         exec_init = time(NULL);
         printf("porra\n");

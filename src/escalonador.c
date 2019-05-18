@@ -53,8 +53,8 @@ int main(int argc, char const *argv[])
     }
 
     printf("msgid_escale = %d\n", msgid_escale);
-    printf("msgid_nodo_rcv = %d\n", msgid_nodo_rcv_end);
-    printf("msgid_nodo_snd = %d\n", msgid_nodo_snd_file);
+    printf("msgid_nodo_rcv_end = %d\n", msgid_nodo_rcv_end);
+    printf("msgid_nodo_snd_file = %d\n", msgid_nodo_snd_file);
 
     sleep(10);
 
@@ -132,14 +132,13 @@ int main(int argc, char const *argv[])
 
         for (my_position_x = 0; my_position_x < 3; my_position_x++)
         {
-            pid = fork();
-            if (pid == 0)
-                break;
-            else if (pid < 0)
+            if ((pid = fork()) < 0) 
             {
                 perror("fork");
                 exit(1);
             }
+            // if (pid == 0)
+            //     break;
         }
     }
 
@@ -160,21 +159,18 @@ int main(int argc, char const *argv[])
         msg_from_exec_post.sec = -1;
         msg_from_nodo0.pid = -1;
 
-        printf("[escalonador][1] msgid_nodo_snd_file = %d\n", msgid_nodo_snd_file);
         while (1)
         {
-
-            //printf("msg_from_exec_post antes: %ld\n", msg_from_exec_post.sec);
+            // printf("msg_from_exec_post antes: %ld\n", msg_from_exec_post.sec);
             // receive from executa_postergado
             msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, IPC_NOWAIT);
-            // 
+            // receive from nodo
             msgrcv(msgid_nodo_rcv_end, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), getpid(), IPC_NOWAIT);
 
             //printf("msg_from_exec_post depois: %ld\n", msg_from_exec_post.sec);
             // -1 significa que n chegou mensagem
             if (msg_from_exec_post.sec != -1)
             {                
-                printf("queue\n");
                 alarm_countdown = alarm(0);
                 att_time(alarm_countdown, ready_queue);
                 print_queue(ready_queue);
@@ -196,7 +192,7 @@ int main(int argc, char const *argv[])
             if (msg_from_nodo0.pid != -1)
             {
                 exec_end = time(NULL);
-                // printf("Tempo total de exec: %d s", exec_init - exec_end);
+                printf("[escalonador][1] Tempo total de exec: %ld s", exec_init - exec_end);
                 is_executing = false;
 
                 if (!is_empty(run_queue))
@@ -216,7 +212,7 @@ int main(int argc, char const *argv[])
         struct msg_nodo msg_2_rcv;
         char executing[100] = "";
         int position_2_send = 20;
-
+        printf("[escalonador][0] asdflçkj");
         for (int i = 0; i < 4; i++)
         {
             if (list[my_position_x].neighbor[i] == -1)
@@ -228,13 +224,16 @@ int main(int argc, char const *argv[])
 
         while (1)
         {
-            printf("msgid_nod_snd: %d", msgid_nodo_snd_file);
+            printf("[escalonador][0] msgid_nodo_snd_file: %d", msgid_nodo_snd_file);
             msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, 0);
+            printf("[escalonador][0] desbloq msgid_nodo_snd_file");
 
             // separa nome arq do path
             char *str;
             strcpy(str, msg_2_rcv.arq_executavel);
             int init_size = strlen(str);
+            printf("[escalonador][0]%d", init_size);
+
             char delim[] = "/";
             char *filename;
 
