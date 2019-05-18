@@ -244,10 +244,10 @@ int insert_queue(Queue *ready_queue, struct msg insert_msg)
     new_nodo->sec = insert_msg.sec;
     strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
     new_nodo->next = NULL;
-    printf("New nodo %d %s\n", new_nodo->sec, new_nodo->arq_executavel);
+    printf("New nodo sec: %d file: %s\n", new_nodo->sec, new_nodo->arq_executavel);
     if (ready_queue->init == NULL)
     { //empty queue
-        printf("queue init null :(\n");
+        printf("ready_queue->init null :(\n");
         ready_queue->init = new_nodo;
     }
     else

@@ -1,7 +1,7 @@
 // #ifndef EXECUTA_POSTERGADO_H_
 // #define EXECUTA_POSTERGADO_H_
 
-#define KEY 0x03718
+#define KEY_ESCALE 0x03718
 
 struct msg{
     long sec;

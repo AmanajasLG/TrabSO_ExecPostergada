@@ -53,6 +53,8 @@ int main(int argc, char const *argv[])
     }
 
     printf("msgid_escale = %d\n", msgid_escale);
+    printf("msgid_nodo_rcv = %d\n", msgid_nodo_rcv_end);
+    printf("msgid_nodo_snd = %d\n", msgid_nodo_snd_file);
 
     sleep(10);
 
@@ -65,7 +67,6 @@ int main(int argc, char const *argv[])
 
     switch (topology)
     {
-
     case HYPERCUBE:
         create_hypercube(hypercube);
         print_hypercube(hypercube);
@@ -154,28 +155,28 @@ int main(int argc, char const *argv[])
         print_queue(ready_queue);
         strcpy(msg_2_nodo0.arq_executavel, msg_from_exec_post.arq_executavel);
         current_time = alarm((int)msg_from_exec_post.sec);
-        printf("arquivo executavel copiado\n");
+        printf("[escalonador][1] arquivo executavel copiado\n");
 
         msg_from_exec_post.sec = -1;
         msg_from_nodo0.pid = -1;
-        printf("msgid_nodo_snd_file = %d\n", msgid_nodo_snd_file);
+
+        printf("[escalonador][1] msgid_nodo_snd_file = %d\n", msgid_nodo_snd_file);
         while (1)
         {
 
             //printf("msg_from_exec_post antes: %ld\n", msg_from_exec_post.sec);
-
+            // receive from executa_postergado
             msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, IPC_NOWAIT);
+            // 
             msgrcv(msgid_nodo_rcv_end, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), getpid(), IPC_NOWAIT);
 
             //printf("msg_from_exec_post depois: %ld\n", msg_from_exec_post.sec);
             // -1 significa que n chegou mensagem
             if (msg_from_exec_post.sec != -1)
-            {
-                printf("entrou nessa porra 1/2\n");
+            {                
+                printf("queue\n");
                 alarm_countdown = alarm(0);
-                printf("entrou nessa porra\n");
                 att_time(alarm_countdown, ready_queue);
-                printf("entrou nessa porra 2\n");
                 print_queue(ready_queue);
                 if (msg_from_exec_post.sec < alarm_countdown)
                 {
@@ -189,7 +190,6 @@ int main(int argc, char const *argv[])
                     print_queue(ready_queue);
                     alarm(alarm_countdown);
                 }
-                printf("entrou nessa porra 3\n");
                 msg_from_exec_post.sec = -1;
             }
 
@@ -212,8 +212,6 @@ int main(int argc, char const *argv[])
 
     if (pid == 0)
     {
-        printf("entrou aqui fdp\n");
-
         struct end_msg msg_2_snd, msg_2_rcv_end;
         struct msg_nodo msg_2_rcv;
         char executing[100] = "";
@@ -230,9 +228,8 @@ int main(int argc, char const *argv[])
 
         while (1)
         {
-            printf("satanas pelado\n");
+            printf("msgid_nod_snd: %d", msgid_nodo_snd_file);
             msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, 0);
-            printf("satanas pelado 2\n");
 
             // separa nome arq do path
             char *str;

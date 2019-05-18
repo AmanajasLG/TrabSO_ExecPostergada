@@ -3,6 +3,10 @@
 Trabalho da disciplina de Sistemas Operacionais - Execução Multi-processo
 Postergada
 
+makefile: 
+    /src$ make escalonador
+    /src$ make executa_postergado
+
 ## FILA DE MENSAGENS:
 
 1. msgid_escale
