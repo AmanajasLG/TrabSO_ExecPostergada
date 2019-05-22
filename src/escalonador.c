@@ -1,4 +1,4 @@
-#include "escalonador.h"
+#include "../include/escalonador.h"
 
 int main(int argc, char const *argv[])
 {
@@ -56,7 +56,7 @@ int main(int argc, char const *argv[])
     sleep(10);
 
     NodoHypercube hypercube[16];
-    NodoTorus torus[4][4];
+    NodoTorus torus[16];
     NodoList list[3];
     TreeNodo fattree[15];
 
@@ -140,7 +140,8 @@ int main(int argc, char const *argv[])
                 perror("fork");
                 exit(1);
             }
-            if(my_position_x == 0){
+            if (my_position_x == 0)
+            {
                 pid_nodo0 = pid;
             }
         }
@@ -205,10 +206,10 @@ int main(int argc, char const *argv[])
                 printf("Hora de inicio: %d\n", msg_from_nodo0.end_info[1]);
                 printf("Hora de termino: %d\n", msg_from_nodo0.end_info[2]);
 
-                if(count_end == 0){
+                if (count_end == 0)
+                {
                     exec_end = time(NULL);
                     is_executing = false;
-
 
                     strcpy(msg_2_nodo0.arq_executavel, " ");
                     msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
@@ -218,10 +219,10 @@ int main(int argc, char const *argv[])
                         strcpy(msg_2_nodo0.arq_executavel, run_queue->init->arq_executavel);
                         manda_exec_prog();
                     }
-                    count_end = count_end_origin;    
+                    count_end = count_end_origin;
                 }
                 // printf("Tempo total de exec: %d s", exec_init - exec_end);
-                
+
                 msg_from_nodo0.position = -1;
             }
         }
@@ -245,17 +246,18 @@ int main(int argc, char const *argv[])
                 position_2_send = list[my_position_x].neighbor[i];
         }
         printf("my_position_x: %d\n", my_position_x);
-        if(my_position_x == 0){
+        if (my_position_x == 0)
+        {
             while (1)
-            {    
-                if(my_position_x == 0){
-                    
+            {
+                if (my_position_x == 0)
+                {
+
                     printf("mypid: %d\n", getpid());
-                    msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), getpid(), 0);    
+                    msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), getpid(), 0);
                     printf("mgs_rcv: %s\n", msg_2_rcv.arq_executavel);
                 }
                 msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, IPC_NOWAIT);
-                
 
                 // separa nome arq do path
                 char *str;
@@ -285,7 +287,7 @@ int main(int argc, char const *argv[])
                     printf("Error on fork() -> %d", errno);
                     continue;
                 }
-                
+
                 exec_init_nodo = (int)time(NULL);
                 if (pid == 0)
                 {
@@ -295,7 +297,7 @@ int main(int argc, char const *argv[])
                 // espera no atual esperar de executar
                 int state;
                 wait(&state);
-                
+
                 exec_end_nodo = (int)time(NULL);
                 printf("Nodo %d terminou de executar %s\n", my_position_x, msg_2_rcv.arq_executavel);
 
@@ -307,23 +309,27 @@ int main(int argc, char const *argv[])
 
                 msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
             }
-        }else{
+        }
+        else
+        {
             msg_2_rcv_end.position = -1;
             msg_2_rcv.pid = -1;
             while (1)
             {
                 msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, IPC_NOWAIT);
-                
+
                 msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 0, IPC_NOWAIT);
 
-                if(msg_2_rcv_end.position != -1){
+                if (msg_2_rcv_end.position != -1)
+                {
                     msg_2_rcv_end.position = position_2_send;
                     msgsnd(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 0);
-                    
-                    msg_2_rcv_end.position = -1;                   
+
+                    msg_2_rcv_end.position = -1;
                 }
 
-                if(msg_2_rcv.pid != -1){
+                if (msg_2_rcv.pid != -1)
+                {
                     // separa nome arq do path
                     char *str;
                     strcpy(str, msg_2_rcv.arq_executavel);
@@ -340,8 +346,9 @@ int main(int argc, char const *argv[])
                     }
                     //TODO : ARQUIVO MSM NOME QUEBRA
                     // testa se prog mandado ja ta executando
-                    
-                    for(int i = 0; i < 4; i++){
+
+                    for (int i = 0; i < 4; i++)
+                    {
                         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
                     }
 
@@ -372,10 +379,8 @@ int main(int argc, char const *argv[])
                     msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
                     msg_2_rcv.pid = -1;
                 }
-                
             }
         }
-        
     }
 
     struct msqid_ds *buf;

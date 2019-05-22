@@ -1,3 +1,7 @@
+#ifndef INCLUDES_H_
+
+#define INCLUDES_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -108,3 +112,5 @@ struct tree_nodo
 };
 
 typedef struct tree_nodo TreeNodo;
+
+#endif

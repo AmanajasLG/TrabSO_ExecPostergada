@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/msg.h>
 
-#include "executa_postergado.h"
+#include "../include/executa_postergado.h"
 
 int cfile_exists(const char *filename)
 {

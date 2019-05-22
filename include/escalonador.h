@@ -2,17 +2,19 @@
 
 #define ESCALONADOR_H_
 
-#include "includes.h"
+#include "../include/includes.h"
+#include "../include/torus.h"
+#include "../include/hypercube.h"
+#include "../include/tree.h"
+
 struct msg_nodo msg_2_nodo0;
 int msgid_nodo_snd_file, pid_nodo0;
 bool is_executing = false;
 time_t exec_init;
 Queue *ready_queue = NULL, *run_queue = NULL;
 
-
 void print_topology(int type, TreeNodo *fattree)
 {
-
     switch (type)
     {
     case HYPERCUBE:
@@ -23,135 +25,6 @@ void print_topology(int type, TreeNodo *fattree)
         for (int i = 0; i < 15; i++)
             printf("nodo [%d] pid %d pai: %d dir %d esq %d\n", i, fattree[i].pid, fattree[i].parent, fattree[i].right, fattree[i].left);
         break;
-    }
-}
-
-void create_hypercube(NodoHypercube hypercube[16])
-{
-    for (int i = 0; i < 16; i++)
-    {
-
-        hypercube[i].neighbor[0] = i ^ 0b0001;
-        hypercube[i].neighbor[1] = i ^ 0b0010;
-        hypercube[i].neighbor[2] = i ^ 0b0100;
-        hypercube[i].neighbor[3] = i ^ 0b1000;
-    }
-}
-
-void print_hypercube(NodoHypercube hypercube[16])
-{
-
-    for (int i = 0; i < 16; i++)
-    {
-
-        for (int j = 0; j < 4; j++)
-        {
-            printf("no %d - vizinho %d: %d\n ", i, j, hypercube[i].neighbor[j]);
-        }
-        printf("\n\n");
-    }
-}
-
-void create_torus(NodoTorus torus[4][4])
-{
-    char xx[12], yy[12];
-    int x, y;
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-
-            x = i;
-            y = abs((j - 3) % 4);
-
-            sprintf(xx, "%d", x);
-            sprintf(yy, "%d", y);
-
-            strcat(xx, yy);
-            torus[i][j].neighbor[0] = atol(xx);
-
-            x = i;
-            y = j % 2 == 0 ? (j + 1) % 4 : abs((j - 1) % 4);
-
-            sprintf(xx, "%d", x);
-            sprintf(yy, "%d", y);
-
-            strcat(xx, yy);
-            torus[i][j].neighbor[1] = atol(xx);
-
-            x = abs((i - 3) % 4);
-            y = j;
-
-            sprintf(xx, "%d", x);
-            sprintf(yy, "%d", y);
-
-            strcat(xx, yy);
-            torus[i][j].neighbor[2] = atol(xx);
-
-            x = i % 2 == 0 ? (i + 1) % 4 : abs((i - 1) % 4);
-            y = j;
-
-            sprintf(xx, "%d", x);
-            sprintf(yy, "%d", y);
-
-            strcat(xx, yy);
-            torus[i][j].neighbor[3] = atol(xx);
-        }
-    }
-}
-
-void print_torus(NodoTorus torus[4][4])
-{
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            for (int k = 0; k < 4; k++)
-            {
-                printf("no [%d][%d] - vizinho %d: [%d]\n", i, j, k, torus[i][j].neighbor[k]);
-            }
-
-            printf("\n\n");
-        }
-    }
-}
-
-void create_tree(TreeNodo fattree[15])
-{
-    for (int i = 0; i < 15; i++)
-    {
-        int right_index = 2 * i + 2;
-        int left_index = 2 * i + 1;
-
-        if (i <= 2)
-        {
-            if (i == 0)
-            {
-                fattree[i].parent = -1;
-            }
-
-            fattree[right_index].parent = i;
-            fattree[i].right = right_index;
-
-            fattree[left_index].parent = i;
-            fattree[i].left = left_index;
-        }
-        else
-        {
-            if (i < 7)
-            {
-                fattree[i].right = right_index;
-                fattree[i].left = left_index;
-            }
-            else
-            {
-                fattree[i].right = -1;
-                fattree[i].left = -1;
-            }
-
-            fattree[right_index].parent = i;
-            fattree[left_index].parent = i;
-        }
     }
 }
 
