@@ -51,4 +51,8 @@ void nodo_loop_torus()
 {
 }
 
+void nodo_0_loop_torus()
+{
+}
+
 #endif

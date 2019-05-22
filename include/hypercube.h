@@ -34,4 +34,8 @@ void nodo_loop_hypercube()
 {
 }
 
+void nodo_0_loop_hypercube()
+{
+}
+
 #endif
