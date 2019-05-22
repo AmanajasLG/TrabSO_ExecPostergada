@@ -4,10 +4,11 @@
 
 #include "includes.h"
 struct msg_nodo msg_2_nodo0;
-int msgid_nodo_snd_file;
+int msgid_nodo_snd_file, pid_nodo0;
 bool is_executing = false;
 time_t exec_init;
 Queue *ready_queue = NULL, *run_queue = NULL;
+
 
 void print_topology(int type, TreeNodo *fattree)
 {
@@ -305,24 +306,21 @@ void print_queue(Queue *ready_queue)
 
 void manda_exec_prog()
 {
-    printf("passou nessa caralha\n");
-    msg_2_nodo0.pid = 0;
+
+    msg_2_nodo0.pid = pid_nodo0;
     if (!is_executing)
     {
-        printf("antes: %d\n", errno);
+
         printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
         msgid_nodo_snd_file = msgget(KEY_NODO_END, 0x1FF);
-        printf("msg id nodo send file %d\n", msgid_nodo_snd_file);
+        printf("\nmsg : [%ld %s]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
-        printf("depois : %d\n", errno);
         is_executing = true;
         exec_init = time(NULL);
-        printf("porra\n");
     }
     else
     {
-        printf("vtnc\n");
-        // coloca prog na fila
+        printf("erro no signal manda exec prog\n");
     }
 }
 

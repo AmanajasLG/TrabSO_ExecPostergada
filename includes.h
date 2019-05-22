@@ -28,10 +28,16 @@ struct msg_nodo
     char arq_executavel[100];
 };
 
+/* 
+    end info:
+        0 -> posição de quem terminou
+        1 -> hora de inicio
+        2 -> hora de termino 
+ */
 struct end_msg
 {
     long position;
-    int position_end;
+    int end_info[3];
 };
 
 struct queue_nodo
