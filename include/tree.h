@@ -43,6 +43,12 @@ void create_tree(TreeNodo fattree[15])
     }
 }
 
+void print_tree(TreeNodo tree[15])
+{
+    for (int i = 0; i < 15; i++)
+        printf("nodo [%d] pid %d pai: %d dir %d esq %d\n", i, tree[i].pid, tree[i].parent, tree[i].right, tree[i].left);
+}
+
 /* 
     msg_2_snd -> MSG ENVIADA QUANDO TERMINA DE EXEC
     msg_2_rcv_end -> MSG RECEBIDA QUANDO PROGRAMAS FILHOS ACABAM DE EXEC
@@ -51,7 +57,7 @@ void create_tree(TreeNodo fattree[15])
     OBS: ID NA FILA É A POS NO VEC + 1 PQ 0 NÃO PODE SER ID
 */
 
-void nodo_loop_tree(int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, TreeNodo my_nodo)
+void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, TreeNodo my_nodo)
 {
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
@@ -60,7 +66,7 @@ void nodo_loop_tree(int msgid_nodo_rcv_end, int shmid_all_ended, int my_position
     int exec_end, exec_init;
 
     int pid;
-    all_ended = shmat(shmid_all_ended, (char *)0, 0);
+    all_ended = (bool *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_2_rcv.pid = -1;
     msg_2_rcv_end.position = -1;
@@ -150,7 +156,7 @@ void nodo_loop_tree(int msgid_nodo_rcv_end, int shmid_all_ended, int my_position
     }
 }
 
-void nodo_0_loop_tree(int msgid_nodo_rcv_end, int shmid_all_ended, TreeNodo my_nodo)
+void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, TreeNodo my_nodo)
 {
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
@@ -158,7 +164,7 @@ void nodo_0_loop_tree(int msgid_nodo_rcv_end, int shmid_all_ended, TreeNodo my_n
     char executing[100] = " ";
     int exec_end, exec_init;
     int pid;
-    all_ended = shmat(shmid_all_ended, (char *)0, 0);
+    all_ended = (bool *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_2_rcv.pid = -1;
     msg_2_rcv_end.position = -1;

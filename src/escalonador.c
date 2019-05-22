@@ -112,11 +112,11 @@ int main(int argc, char const *argv[])
             {
                 if (my_position == 0)
                 {
-                    nodo_0_loop_tree(msgid_nodo_rcv_end, shmid_all_ended, tree[0]);
+                    nodo_0_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, tree[0]);
                 }
                 else
                 {
-                    nodo_loop_tree(msgid_nodo_rcv_end, shmid_all_ended, my_position, tree[my_position]);
+                    nodo_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, my_position, tree[my_position]);
                 }
                 break;
             }
@@ -126,9 +126,9 @@ int main(int argc, char const *argv[])
                 perror("fork");
                 exit(1);
             }
-
             tree[my_position].pid = pid;
         }
+        print_tree(tree);
         count_end_origin = 15;
         break;
     case LIST:

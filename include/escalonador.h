@@ -231,7 +231,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     int alarm_countdown, count_end = count_end_origin;
     struct msg msg_from_exec_post;
     struct end_msg msg_from_nodo0;
-    all_ended = shmat(shmid_all_ended, (char *)0, 0);
+    all_ended = (bool *)shmat(shmid_all_ended, (char *)0, 0);
     *all_ended = false;
 
     /* ESPERA A PRIMEIRA MGS BLOQ PQ SE AINDA N RECEBEU NENHUMA NÃO TEM O QUE FAZER */
