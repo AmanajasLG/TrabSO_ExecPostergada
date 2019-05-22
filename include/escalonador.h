@@ -12,6 +12,7 @@ bool is_executing = false;
 time_t exec_init;
 Queue *ready_queue = NULL, *run_queue = NULL;
 
+/* QUEUE CONTROLLER */
 void print_topology(int type, TreeNodo *fattree)
 {
     switch (type)
@@ -176,6 +177,30 @@ void print_queue(Queue *ready_queue)
     printf("\n");
 }
 
+/* ATUALIZA TIME DOS PROGS ESPERANDO NA FILA READY */
+void att_time(int alarm_countdown, Queue *ready_queue)
+{
+    int sub_time = 0;
+
+    struct queue_nodo *tmp = ready_queue->init;
+
+    if (tmp != NULL)
+    {
+        sub_time = tmp->sec - alarm_countdown;
+        tmp->sec = alarm_countdown;
+
+        if ((tmp = tmp->next) != NULL)
+        {
+            do
+            {
+                tmp->sec -= sub_time;
+                tmp = tmp->next;
+            } while (tmp != NULL);
+        }
+    }
+}
+
+/* MANDA MSG PARA O NÓ ZERO COM O PROG A SER EXEC */
 void manda_exec_prog()
 {
 
@@ -196,26 +221,78 @@ void manda_exec_prog()
     }
 }
 
-void att_time(int alarm_countdown, Queue *ready_queue)
+/* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
+void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_origin)
 {
-    int sub_time = 0;
+    /* SETA FUNÇÃO QUE SERÁ EXEC QUANDO RECEBER O ALARM */
+    signal(SIGALRM, manda_exec_prog);
 
-    struct queue_nodo *tmp = ready_queue->init;
+    int alarm_countdown, count_end = count_end_origin;
+    struct msg msg_from_exec_post;
+    struct end_msg msg_from_nodo0;
 
-    if (tmp != NULL)
+    /* ESPERA A PRIMEIRA MGS BLOQ PQ SE AINDA N RECEBEU NENHUMA NÃO TEM O QUE FAZER */
+    msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, 0);
+    insert_queue(ready_queue, msg_from_exec_post);
+    // print_queue(ready_queue);
+    strcpy(msg_2_nodo0.arq_executavel, msg_from_exec_post.arq_executavel);
+    alarm((int)msg_from_exec_post.sec);
+
+    /* SETA LONG -1 PARA MOSTRAR QUE N TEM MSG NOVA (PRIMEIRA MSG JÁ TRATADA ACIMA) */
+    msg_from_exec_post.sec = -1;
+    msg_from_nodo0.position = -1;
+    while (1)
     {
-        sub_time = tmp->sec - alarm_countdown;
-        tmp->sec = alarm_countdown;
+        /* ESPERA MSG DO EXEC POST OU DO NÓ 0 INFORMANDO QUE ALGUM NÓ ACABOU DE EXEC */
+        msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, IPC_NOWAIT);
+        msgrcv(msgid_nodo_rcv_end, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), pid_nodo0, IPC_NOWAIT);
 
-        if (tmp->next != NULL)
+        // -1 significa que n chegou mensagem
+        if (msg_from_exec_post.sec != -1)
         {
-            tmp = tmp->next;
-
-            do
+            alarm_countdown = alarm(0);
+            att_time(alarm_countdown, ready_queue);
+            // print_queue(ready_queue);
+            if (msg_from_exec_post.sec < alarm_countdown)
             {
-                tmp->sec -= sub_time;
-                tmp = tmp->next;
-            } while (tmp != NULL);
+                insert_queue_first_pos(ready_queue, msg_from_exec_post);
+                // print_queue(ready_queue);
+                alarm(msg_from_exec_post.sec);
+            }
+            else
+            {
+                insert_queue(ready_queue, msg_from_exec_post);
+                // print_queue(ready_queue);
+                alarm(alarm_countdown);
+            }
+            msg_from_exec_post.sec = -1;
+        }
+
+        if (msg_from_nodo0.position != -1)
+        {
+            count_end--;
+
+            printf("No %d terminou:\n", msg_from_nodo0.end_info[0]);
+            printf("Hora de inicio: %d\n", msg_from_nodo0.end_info[1]);
+            printf("Hora de termino: %d\n", msg_from_nodo0.end_info[2]);
+
+            if (count_end == 0)
+            {
+                is_executing = false;
+
+                strcpy(msg_2_nodo0.arq_executavel, " ");
+                msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
+
+                if (!is_empty(run_queue))
+                {
+                    strcpy(msg_2_nodo0.arq_executavel, run_queue->init->arq_executavel);
+                    manda_exec_prog();
+                }
+                count_end = count_end_origin;
+            }
+            // printf("Tempo total de exec: %d s", exec_init - exec_end);
+
+            msg_from_nodo0.position = -1;
         }
     }
 }
