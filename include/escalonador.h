@@ -21,7 +21,7 @@ void print_topology(int type, TreeNodo *fattree)
         break;
     case TORUS:
         break;
-    case FATTREE:
+    case TREE:
         for (int i = 0; i < 15; i++)
             printf("nodo [%d] pid %d pai: %d dir %d esq %d\n", i, fattree[i].pid, fattree[i].parent, fattree[i].right, fattree[i].left);
         break;
@@ -214,6 +214,7 @@ void manda_exec_prog()
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
         is_executing = true;
         exec_init = time(NULL);
+        *all_ended = false;
     }
     else
     {
@@ -222,7 +223,7 @@ void manda_exec_prog()
 }
 
 /* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
-void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_origin)
+void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_ended, int count_end_origin)
 {
     /* SETA FUNÇÃO QUE SERÁ EXEC QUANDO RECEBER O ALARM */
     signal(SIGALRM, manda_exec_prog);
@@ -230,6 +231,8 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
     int alarm_countdown, count_end = count_end_origin;
     struct msg msg_from_exec_post;
     struct end_msg msg_from_nodo0;
+    all_ended = shmat(shmid_all_ended, (char *)0, 0);
+    *all_ended = false;
 
     /* ESPERA A PRIMEIRA MGS BLOQ PQ SE AINDA N RECEBEU NENHUMA NÃO TEM O QUE FAZER */
     msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, 0);
@@ -280,11 +283,15 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
             {
                 is_executing = false;
 
-                strcpy(msg_2_nodo0.arq_executavel, " ");
-                msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
+                while (msg_from_nodo0.position != -1)
+                {
+                    msg_from_nodo0.position = -1;
+                    msgrcv(msgid_nodo_rcv_end, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), 0, IPC_NOWAIT);
+                }
 
                 if (!is_empty(run_queue))
                 {
+                    *all_ended = true;
                     strcpy(msg_2_nodo0.arq_executavel, run_queue->init->arq_executavel);
                     manda_exec_prog();
                 }

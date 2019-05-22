@@ -15,10 +15,14 @@
 #include <sys/errno.h>
 #include <sys/wait.h>
 #include <sys/signal.h>
+#include <sys/shm.h>
 
 #define KEY_ESCALE 0x03718
 #define KEY_NODO_END 0x6659
 #define KEY_NODO_FILE 0x8274
+#define KEY_ALL_ENDED 0x1223
+
+bool *all_ended;
 
 /* MSG RECEBIDA DO EXEC POST */
 struct msg
@@ -81,7 +85,7 @@ enum topology
 {
     HYPERCUBE = 0,
     TORUS,
-    FATTREE,
+    TREE,
     LIST,
 };
 typedef enum topology TopologyTypes;

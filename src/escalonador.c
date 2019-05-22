@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     }
 
     /* COMEÇA A GERAR FILAS */
-    int pid, msgid_escale, msgid_nodo_rcv_end;
+    int pid, msgid_escale, msgid_nodo_rcv_end, shmid_all_ended;
 
     if ((msgid_escale = msgget(KEY_ESCALE, IPC_CREAT | 0x1FF)) < 0)
     {
@@ -42,6 +42,12 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
+    if ((shmid_all_ended = shmget(0x1223, sizeof(bool), IPC_CREAT | 0x1ff)) < 0)
+    {
+        printf("erro na criacao da fila\n");
+        exit(1);
+    }
+
     ready_queue = start_queue();
     run_queue = start_queue();
 
@@ -58,7 +64,7 @@ int main(int argc, char const *argv[])
     NodoHypercube hypercube[16];
     NodoTorus torus[16];
     NodoList list[3];
-    TreeNodo fattree[15];
+    TreeNodo tree[15];
 
     int my_position, count_end_origin;
 
@@ -96,21 +102,32 @@ int main(int argc, char const *argv[])
         exit(0);
         count_end_origin = 16;
         break;
-    case FATTREE:
-        create_tree(fattree);
+    case TREE:
+        create_tree(tree);
 
         for (my_position = 0; my_position < 15; my_position++)
         {
             pid = fork();
             if (pid == 0)
+            {
+                if (my_position == 0)
+                {
+                    nodo_0_loop_tree(msgid_nodo_rcv_end, shmid_all_ended, tree[0]);
+                }
+                else
+                {
+                    nodo_loop_tree(msgid_nodo_rcv_end, shmid_all_ended, my_position, tree[my_position]);
+                }
                 break;
+            }
+
             else if (pid < 0)
             {
                 perror("fork");
                 exit(1);
             }
 
-            fattree[my_position].pid = pid;
+            tree[my_position].pid = pid;
         }
         count_end_origin = 15;
         break;
@@ -151,7 +168,7 @@ int main(int argc, char const *argv[])
     // escalonador
     if (pid != 0)
     {
-        loop_escalonator(msgid_escale, msgid_nodo_rcv_end, count_end_origin);
+        loop_escalonator(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended, count_end_origin);
     }
 
     if (pid == 0)
