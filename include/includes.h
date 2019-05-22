@@ -20,12 +20,14 @@
 #define KEY_NODO_END 0x6659
 #define KEY_NODO_FILE 0x8274
 
+/* MSG RECEBIDA DO EXEC POST */
 struct msg
 {
     long sec;
     char arq_executavel[100];
 };
 
+/* MSG ENVIADA PARA OS NÓS */
 struct msg_nodo
 {
     long pid;
@@ -84,13 +86,6 @@ enum topology
 };
 typedef enum topology TopologyTypes;
 
-struct neighbor
-{
-    int x;
-    int y;
-};
-
-typedef struct neighbor Neighbor;
 struct nodo
 {
     int pid;
