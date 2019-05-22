@@ -2,7 +2,6 @@
 
 #define ESCALONADOR_H_
 
-#include "../include/includes.h"
 #include "../include/torus.h"
 #include "../include/hypercube.h"
 #include "../include/tree.h"
