@@ -21,9 +21,9 @@
 #define KEY_ESCALE 0x03718
 #define KEY_NODO_END 0x6659
 #define KEY_NODO_FILE 0x8274
-#define KEY_ALL_ENDED 0x1223
+#define KEY_ALL_ENDED 0x4543
 
-bool *all_ended;
+int *all_ended, job = 0;
 
 /* MSG RECEBIDA DO EXEC POST */
 struct msg
@@ -53,6 +53,7 @@ struct end_msg
 
 struct queue_nodo
 {
+    int job;
     int sec;
     int origin_sec;
     char arq_executavel[100];

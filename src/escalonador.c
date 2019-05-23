@@ -42,22 +42,21 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    if ((shmid_all_ended = shmget(0x1223, sizeof(bool), IPC_CREAT | 0x1ff)) < 0)
+    if ((shmid_all_ended = shmget(KEY_ALL_ENDED, sizeof(int), IPC_CREAT | 0x1ff)) < 0)
     {
-        printf("erro na criacao da fila\n");
+        printf("erro na criacao da memoria compartilhada: %d\n", errno);
         exit(1);
     }
 
     ready_queue = start_queue();
     run_queue = start_queue();
+    ended_queue = start_queue();
 
-    if (ready_queue == NULL || run_queue == NULL)
+    if (ready_queue == NULL || run_queue == NULL || ended_queue == NULL)
     {
         printf("Fila não criada\n");
         exit(1);
     }
-
-    printf("msgid_escale = %d\n", msgid_escale);
 
     sleep(10);
 
@@ -112,14 +111,13 @@ int main(int argc, char const *argv[])
             {
                 if (my_position == 0)
                 {
-                    
+
                     nodo_0_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, tree[0]);
                 }
                 else
                 {
-                    
+
                     nodo_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, my_position, tree[my_position]);
-                    
                 }
                 break;
             }
@@ -211,7 +209,7 @@ int main(int argc, char const *argv[])
                 // separa nome arq do path
                 char *str = malloc(strlen(msg_2_rcv.arq_executavel));
                 strcpy(str, msg_2_rcv.arq_executavel);
-                int init_size = strlen(str);  //UNUSED
+                int init_size = strlen(str); //UNUSED
                 char delim[] = "/";
                 char *filename;
 

@@ -58,14 +58,14 @@ void print_tree(TreeNodo tree[15])
 */
 
 void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, TreeNodo my_nodo)
-{   
+{
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
     struct msg_nodo msg_2_rcv;
     int exec_end, exec_init;
 
     int pid;
-    all_ended = (bool *)shmat(shmid_all_ended, (char *)0, 0);
+    all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_2_rcv.pid = -1;
     msg_2_rcv_end.position = -1;
@@ -74,9 +74,6 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
 
         /* MSG DO ESCALONADOR */
         msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), my_position + 1, IPC_NOWAIT);
-
-        /* MSG DOS FILHOS */
-        msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
 
         if (msg_2_rcv.pid != -1)
         {
@@ -95,8 +92,8 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
             }
             // separa nome arq do path
             char filename[100];
-            strcpy(filename,  basename(msg_2_rcv.arq_executavel));
-            
+            strcpy(filename, basename(msg_2_rcv.arq_executavel));
+
             // printf("RECEBE ARQUIVO %s\n",  msg_2_rcv.arq_executavel);
 
             if ((pid = fork()) < 0)
@@ -109,16 +106,13 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
             if (pid == 0)
             {
                 execl(msg_2_rcv.arq_executavel, filename, (char *)0);
-                
             }
 
             // espera no atual esperar de executar
             int state;
             wait(&state);
-            printf("NO %d exec return %d\n", my_position,state);
 
             exec_end = (int)time(NULL);
-            printf("Nodo %d terminou de executar %s\n", my_position, msg_2_rcv.arq_executavel);
 
             // manda mensagem de volta com
             msg_2_snd.position = my_nodo.parent + 1;
@@ -128,21 +122,23 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
-            while (!(bool *)all_ended)
-                ;
+            while (!*all_ended)
+            {
+                /* MSG DOS FILHOS */
+                msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
+                if (msg_2_rcv_end.position != -1)
+                {
+                    msg_2_rcv_end.position = my_nodo.parent + 1;
+                    msgsnd(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 0);
+                    msg_2_rcv_end.position = -1;
+                }
+            }
 
             msg_2_rcv.pid = -1;
         }
-
-        if (msg_2_rcv_end.position != -1)
-        {
-            msg_2_rcv_end.position = my_nodo.parent + 1;
-            msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
-            msg_2_rcv_end.position = -1;
-        }
     }
 
-    //shmdt(shmid_all_ended);
+    shmdt((char *)0);
 }
 
 void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, TreeNodo my_nodo)
@@ -152,7 +148,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
     struct msg_nodo msg_2_rcv;
     int exec_end, exec_init;
     int pid;
-    all_ended = (bool *)shmat(shmid_all_ended, (char *)0, 0);
+    all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_2_rcv.pid = -1;
     msg_2_rcv_end.position = -1;
@@ -161,9 +157,6 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
 
         /* MSG DO ESCALONADOR */
         msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), getpid(), IPC_NOWAIT);
-
-        /* MSG DOS FILHOS */
-        msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 1, IPC_NOWAIT);
 
         if (msg_2_rcv.pid != -1)
         {
@@ -176,12 +169,9 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
 
             // separa nome arq do path
-                    
-            char filename[100];
-            strcpy(filename,  basename(msg_2_rcv.arq_executavel));
-            
 
-            printf("RECEBE ARQUIVO tree %s\n",  filename);
+            char filename[100];
+            strcpy(filename, basename(msg_2_rcv.arq_executavel));
 
             if ((pid = fork()) < 0)
             {
@@ -201,9 +191,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             // espera no atual esperar de executar
             int state;
             wait(&state);
-            printf("NO 0 exec return %d\n", state);
             exec_end = (int)time(NULL);
-            printf("Nodo %d terminou de executar %s\n", 0, msg_2_rcv.arq_executavel);
 
             // manda mensagem de volta
             msg_2_snd.position = getpid();
@@ -213,20 +201,23 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
-            while (!(bool *)all_ended);
+            while (!*all_ended)
+            {
+                /* MSG DOS FILHOS */
+                msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 1, IPC_NOWAIT);
+                if (msg_2_rcv_end.position != -1)
+                {
+                    msg_2_rcv_end.position = getpid();
+                    msgsnd(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 0);
+                    msg_2_rcv_end.position = -1;
+                }
+            }
 
             msg_2_rcv.pid = -1;
         }
-
-        if (msg_2_rcv_end.position != -1)
-        {
-            msg_2_rcv_end.position = getpid();
-            msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
-            msg_2_rcv_end.position = -1;
-        }
     }
 
-    // shmdt(shmid_all_ended);
+    shmdt((char *)0);
 }
 
 #endif
