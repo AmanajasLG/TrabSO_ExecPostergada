@@ -11,7 +11,7 @@
 int cfile_exists(const char *filename)
 {
     FILE *file;
-    if (file = fopen(filename, "r"))
+    if ((file = fopen(filename, "r")))
     {
         fclose(file);
         return 1;
@@ -23,17 +23,19 @@ int main(int argc, char const *argv[])
     int msgid;
 
     char *end;
-    char arq_executavel[100];
+    // char arq_executavel[100];
     struct msg msg_2_send;
 
     if (argc != 3)
     {
-        printf("Number of args invalid\n");
+        printf("Invalid number of args\n");
+        exit(1);
     }
     strtol(argv[1], &end, 10);
     if (*end != '\0')
     {
-        printf("First arg not a int\n");
+        printf("First arg must be an int\n");
+        exit(1);
     }
     else
     {
@@ -42,7 +44,8 @@ int main(int argc, char const *argv[])
 
     if (!cfile_exists(argv[2]))
     {
-        printf("File dont exists\n");
+        printf("Invalid file\n");
+        exit(1);
     }
     else
     {

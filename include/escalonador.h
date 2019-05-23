@@ -88,6 +88,7 @@ int free_queue(Queue *ready_queue)
 
         } while (tmp != NULL);
     }
+    return 1;
 }
 int remove_queue(Queue *ready_queue)
 {

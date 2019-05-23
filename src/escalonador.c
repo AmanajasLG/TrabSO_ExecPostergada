@@ -209,9 +209,9 @@ int main(int argc, char const *argv[])
                 msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0, IPC_NOWAIT);
 
                 // separa nome arq do path
-                char *str;
+                char *str = malloc(strlen(msg_2_rcv.arq_executavel));
                 strcpy(str, msg_2_rcv.arq_executavel);
-                int init_size = strlen(str);
+                int init_size = strlen(str);  //UNUSED
                 char delim[] = "/";
                 char *filename;
 
@@ -229,7 +229,7 @@ int main(int argc, char const *argv[])
 
                 strcpy(executing, filename);
 
-                printf("RECEBE ARQUIVO %s\n", executing);
+                printf("RECEBE ARQUIVO escalonador my_position0 %s\n", executing);
 
                 if ((pid = fork()) < 0)
                 {
@@ -240,7 +240,11 @@ int main(int argc, char const *argv[])
                 exec_init_nodo = (int)time(NULL);
                 if (pid == 0)
                 {
-                    execl(msg_2_rcv.arq_executavel, filename, (char *)0);
+                    printf("execl\n");
+                    if (execl(msg_2_rcv.arq_executavel, filename, (char *)0) < 0)
+                    {
+                        printf("ERR: execl failed: %d\n", errno);
+                    }
                 }
 
                 // espera no atual esperar de executar
@@ -280,9 +284,9 @@ int main(int argc, char const *argv[])
                 if (msg_2_rcv.pid != -1)
                 {
                     // separa nome arq do path
-                    char *str;
+                    char *str = malloc(strlen(msg_2_rcv.arq_executavel));
                     strcpy(str, msg_2_rcv.arq_executavel);
-                    int init_size = strlen(str);
+                    int init_size = strlen(str); //UNUSED
                     char delim[] = "/";
                     char *filename;
 
@@ -303,7 +307,7 @@ int main(int argc, char const *argv[])
 
                     strcpy(executing, filename);
 
-                    printf("RECEBE ARQUIVO %s\n", executing);
+                    printf("RECEBE ARQUIVO escalonador myposition!0 %s\n", executing);
 
                     if ((pid = fork()) < 0)
                     {
@@ -313,7 +317,10 @@ int main(int argc, char const *argv[])
 
                     if (pid == 0)
                     {
-                        execl(msg_2_rcv.arq_executavel, filename, (char *)0);
+                        if (execl(msg_2_rcv.arq_executavel, filename, (char *)0) < 0)
+                        {
+                            printf("ERR: execl failed: %d\n", errno);
+                        }
                     }
 
                     // espera no atual esperar de executar
@@ -332,12 +339,14 @@ int main(int argc, char const *argv[])
         }
     }
 
+    printf("DESTROY ALL\n");
     /* DESTROI FILAS E LISTAS */
-    struct msqid_ds *buf;
-    msgctl(msgid_escale, IPC_RMID, buf);
-    msgctl(msgid_nodo_snd_file, IPC_RMID, buf);
-    msgctl(msgid_nodo_rcv_end, IPC_RMID, buf);
-    // shmctl(shmid_all_ended, IPC_RMID, buf);
+    struct msqid_ds *msqbuf = malloc(sizeof(struct msqid_ds));
+    struct shmid_ds *shmbuf = malloc(sizeof(struct shmid_ds));
+    msgctl(msgid_escale, IPC_RMID, msqbuf);
+    msgctl(msgid_nodo_snd_file, IPC_RMID, msqbuf);
+    msgctl(msgid_nodo_rcv_end, IPC_RMID, msqbuf);
+    shmctl(shmid_all_ended, IPC_RMID, shmbuf);
     free_queue(ready_queue);
     free_queue(run_queue);
 

@@ -181,7 +181,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             strcpy(filename,  basename(msg_2_rcv.arq_executavel));
             
 
-            printf("RECEBE ARQUIVO %s\n",  filename);
+            printf("RECEBE ARQUIVO tree %s\n",  filename);
 
             if ((pid = fork()) < 0)
             {
@@ -192,7 +192,10 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             exec_init = (int)time(NULL);
             if (pid == 0)
             {
-                execl(msg_2_rcv.arq_executavel, filename, (char *)0);
+                if (execl(msg_2_rcv.arq_executavel, filename, (char *)0) < 0)
+                {
+                    printf("ERR: execl failed: %d\n", errno);
+                }
             }
 
             // espera no atual esperar de executar
