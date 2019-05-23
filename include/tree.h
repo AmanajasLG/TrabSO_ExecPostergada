@@ -58,11 +58,10 @@ void print_tree(TreeNodo tree[15])
 */
 
 void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, TreeNodo my_nodo)
-{
+{   
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
     struct msg_nodo msg_2_rcv;
-    char executing[100] = " ";
     int exec_end, exec_init;
 
     int pid;
@@ -74,7 +73,7 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
     {
 
         /* MSG DO ESCALONADOR */
-        msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), my_nodo.parent + 1, IPC_NOWAIT);
+        msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), my_position + 1, IPC_NOWAIT);
 
         /* MSG DOS FILHOS */
         msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
@@ -94,29 +93,15 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
                 msg_2_rcv.pid = my_nodo.right + 1;
                 msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
             }
-
             // separa nome arq do path
-            char *str;
-            strcpy(str, msg_2_rcv.arq_executavel);
-            int init_size = strlen(str);
-            char delim[] = "/";
-            char *filename;
-
-            char *ptr = strtok(str, delim);
-
-            while (ptr != NULL)
-            {
-                filename = ptr;
-                ptr = strtok(NULL, delim);
-            }
-
-            strcpy(executing, filename);
-
-            printf("RECEBE ARQUIVO %s\n", executing);
+            char filename[100];
+            strcpy(filename,  basename(msg_2_rcv.arq_executavel));
+            
+            // printf("RECEBE ARQUIVO %s\n",  msg_2_rcv.arq_executavel);
 
             if ((pid = fork()) < 0)
             {
-                printf("Error on fork() -> %d", errno);
+                printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
@@ -124,14 +109,16 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
             if (pid == 0)
             {
                 execl(msg_2_rcv.arq_executavel, filename, (char *)0);
+                
             }
 
             // espera no atual esperar de executar
             int state;
             wait(&state);
+            printf("NO %d exec return %d\n", my_position,state);
 
             exec_end = (int)time(NULL);
-            printf("Nodo %d terminou de executar %s\n", 0, msg_2_rcv.arq_executavel);
+            printf("Nodo %d terminou de executar %s\n", my_position, msg_2_rcv.arq_executavel);
 
             // manda mensagem de volta com
             msg_2_snd.position = my_nodo.parent + 1;
@@ -154,6 +141,8 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
             msg_2_rcv_end.position = -1;
         }
     }
+
+    //shmdt(shmid_all_ended);
 }
 
 void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, TreeNodo my_nodo)
@@ -161,7 +150,6 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
     struct msg_nodo msg_2_rcv;
-    char executing[100] = " ";
     int exec_end, exec_init;
     int pid;
     all_ended = (bool *)shmat(shmid_all_ended, (char *)0, 0);
@@ -188,27 +176,16 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
 
             // separa nome arq do path
-            char *str;
-            strcpy(str, msg_2_rcv.arq_executavel);
-            int init_size = strlen(str);
-            char delim[] = "/";
-            char *filename;
+                    
+            char filename[100];
+            strcpy(filename,  basename(msg_2_rcv.arq_executavel));
+            
 
-            char *ptr = strtok(str, delim);
-
-            while (ptr != NULL)
-            {
-                filename = ptr;
-                ptr = strtok(NULL, delim);
-            }
-
-            strcpy(executing, filename);
-
-            printf("RECEBE ARQUIVO %s\n", executing);
+            printf("RECEBE ARQUIVO %s\n",  filename);
 
             if ((pid = fork()) < 0)
             {
-                printf("Error on fork() -> %d", errno);
+                printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
@@ -221,7 +198,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             // espera no atual esperar de executar
             int state;
             wait(&state);
-
+            printf("NO 0 exec return %d\n", state);
             exec_end = (int)time(NULL);
             printf("Nodo %d terminou de executar %s\n", 0, msg_2_rcv.arq_executavel);
 
@@ -233,8 +210,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
-            while (!(bool *)all_ended)
-                ;
+            while (!(bool *)all_ended);
 
             msg_2_rcv.pid = -1;
         }
@@ -246,6 +222,8 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             msg_2_rcv_end.position = -1;
         }
     }
+
+    // shmdt(shmid_all_ended);
 }
 
 #endif

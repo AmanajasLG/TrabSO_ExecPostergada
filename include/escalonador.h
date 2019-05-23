@@ -210,7 +210,6 @@ void manda_exec_prog()
 
         printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
         msgid_nodo_snd_file = msgget(KEY_NODO_END, 0x1FF);
-        printf("\nmsg : [%ld %s]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
         is_executing = true;
         exec_init = time(NULL);
@@ -283,6 +282,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
             {
                 is_executing = false;
 
+                //LIMPA FILA
                 while (msg_from_nodo0.position != -1)
                 {
                     msg_from_nodo0.position = -1;
@@ -291,17 +291,19 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
 
                 if (!is_empty(run_queue))
                 {
-                    *all_ended = true;
                     strcpy(msg_2_nodo0.arq_executavel, run_queue->init->arq_executavel);
                     manda_exec_prog();
                 }
                 count_end = count_end_origin;
+                *all_ended = true;
             }
             // printf("Tempo total de exec: %d s", exec_init - exec_end);
 
             msg_from_nodo0.position = -1;
         }
     }
+
+    // shmdt(shmid_all_ended);
 }
 
 #endif

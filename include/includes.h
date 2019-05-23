@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdbool.h>
+#include <libgen.h>
 
 #include <sys/ipc.h>
 #include <sys/types.h>
