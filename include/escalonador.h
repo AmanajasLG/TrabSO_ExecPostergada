@@ -113,9 +113,9 @@ void manda_exec_prog()
 /* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
 void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_ended, int count_end_origin)
 {
-    printf("go\n");
+    printf("Escalonator Ready for execution\n");
     msg_2_nodo0.pid = pid_nodo0;
-    msgid_nodo_snd_file = msgget(KEY_NODO_END, 0x1FF);
+    msgid_nodo_snd_file = msgget(KEY_NODO_FILE, 0x1FF);
 
     /* SETA FUNÇÃO QUE SERÁ EXEC QUANDO RECEBER O ALARM */
     signal(SIGALRM, manda_exec_prog);

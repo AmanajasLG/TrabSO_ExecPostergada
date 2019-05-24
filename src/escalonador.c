@@ -30,13 +30,13 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    if ((msgid_nodo_rcv_end = msgget(KEY_NODO_FILE, IPC_CREAT | 0x1FF)) < 0)
+    if ((msgid_nodo_rcv_end = msgget(KEY_NODO_END, IPC_CREAT | 0x1FF)) < 0)
     {
         printf("MSG nodo_rcv List didnt able to be created");
         exit(1);
     }
 
-    if ((msgid_nodo_snd_file = msgget(KEY_NODO_END, IPC_CREAT | 0x1FF)) < 0)
+    if ((msgid_nodo_snd_file = msgget(KEY_NODO_FILE, IPC_CREAT | 0x1FF)) < 0)
     {
         printf("MSG nodo_snd List didnt able to be created");
         exit(1);
@@ -58,7 +58,7 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    // sleep(10);
+    sleep(5);
 
     NodoHypercube hypercube[16];
     NodoTorus torus[16];

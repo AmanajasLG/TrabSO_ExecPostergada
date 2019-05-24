@@ -105,7 +105,6 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
             // espera no atual esperar de executar
             int state;
             wait(&state);
-
             exec_end = (int)time(NULL);
 
             // manda mensagem de volta com
@@ -123,7 +122,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
                 if (msg_exec_end.position != -1)
                 {
                     msg_exec_end.position = snd_end_neighbor + 1;
-                    msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
+                    msgsnd(msgid_nodo_snd_file, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
                     msg_exec_end.position = -1;
                 }
             }
@@ -178,9 +177,10 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0)
-            {
-                execl(msg_exec_name.arq_executavel, filename, (char *)0);
+            if (pid == 0) {
+                if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0){
+                    printf("ERR: execl failed: %d\n", errno);
+                }
             }
 
             // espera no atual esperar de executar
