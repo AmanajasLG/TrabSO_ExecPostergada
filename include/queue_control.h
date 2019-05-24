@@ -101,12 +101,9 @@ int remove_queue_ready()
         return 0;
     }
 
-    struct queue_nodo *nodo = ready_queue->init;
+    nodo_to_run_queue = ready_queue->init;
     ready_queue->init = ready_queue->init->next;
 
-    nodo_to_run_queue = nodo;
-
-    free(nodo);
     return 1;
 }
 
@@ -124,7 +121,6 @@ int insert_queue_ready(struct msg insert_msg)
     new_nodo->sec = insert_msg.sec;
     strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
     new_nodo->next = NULL;
-    printf("New nodo %d %s\n", new_nodo->sec, new_nodo->arq_executavel);
     if (ready_queue->init == NULL)
     { //empty queue
         ready_queue->init = new_nodo;
@@ -177,12 +173,10 @@ int remove_queue_run()
     {
         return 0;
     }
-    struct queue_nodo *nodo = run_queue->init;
+    nodo_to_ended_queue = run_queue->init;
 
     run_queue->init = run_queue->init->next;
 
-    nodo_to_ended_queue = nodo;
-    free(nodo);
     return 1;
 }
 

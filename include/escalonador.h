@@ -58,10 +58,12 @@ void manda_exec_prog()
         if (!is_empty(run_queue))
         {
             strcpy(msg_2_nodo0.arq_executavel, run_queue->init->arq_executavel);
+            printf("INICIANDO EXECUCAO DO JOB %d - %s\n\n", run_queue->init->job, run_queue->init->arq_executavel);
         }
         else
         {
             att_time(get_first_sec());
+            printf("INICIANDO EXECUCAO DO JOB %d - %s\n\n", ready_queue->init->job, ready_queue->init->arq_executavel);
             /* REMOVE DA LISTA READY PARA A RUN */
             remove_queue_ready();
             insert_queue_run();
@@ -86,10 +88,11 @@ void manda_exec_prog()
     /* SETA O PROX ALARM */
     alarm(get_first_sec());
 
-    printf("QUEUES SEND\n");
+    printf("\nQUEUES SEND\n");
     print_queue(ready_queue);
     print_queue(run_queue);
     print_queue(ended_queue);
+    printf("\n\n");
 }
 
 /* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
@@ -160,26 +163,27 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
             time_t end_time = (time_t)msg_from_nodo0.end_info[2];
             struct tm *tm_end = localtime(&end_time);
             strftime(end, 30, "%d/%m/%Y, %H:%M:%S", tm_end);
-            printf("Hora de termino: %s\n", end);
+            printf("Hora de termino: %s\n\n", end);
 
             if (count_end == 0)
             {
                 is_executing = false;
-
+                printf("TERMINANDO EXECUCAO DO JOB %d - %s\n\n", run_queue->init->job, run_queue->init->arq_executavel);
                 remove_queue_run();
                 insert_queue_ended();
 
-                printf("QUEUES END\n");
+                printf("\nQUEUES END\n");
                 print_queue(ready_queue);
                 print_queue(run_queue);
                 print_queue(ended_queue);
+                printf("\n\n");
 
                 //LIMPA FILA
-                while (msg_from_nodo0.position != -1)
+                do
                 {
                     msg_from_nodo0.position = -1;
                     msgrcv(msgid_nodo_snd_file, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), 0, IPC_NOWAIT);
-                }
+                } while (msg_from_nodo0.position != -1);
 
                 if (!is_empty(run_queue))
                 {
