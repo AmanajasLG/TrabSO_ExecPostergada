@@ -11,6 +11,21 @@ struct msg_nodo msg_2_nodo0;
 int msgid_nodo_snd_file, pid_nodo0;
 bool is_executing = false;
 
+/* QUANDO PROG TERMINA LIBERA TUDO */
+void end_program(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_ended){
+    printf("DESTROY ALL\n");
+    /* DESTROI FILAS E LISTAS */
+    struct msqid_ds *msqbuf = malloc(sizeof(struct msqid_ds));
+    struct shmid_ds *shmbuf = malloc(sizeof(struct shmid_ds));
+    msgctl(msgid_escale, IPC_RMID, msqbuf);
+    msgctl(msgid_nodo_snd_file, IPC_RMID, msqbuf);
+    msgctl(msgid_nodo_rcv_end, IPC_RMID, msqbuf);
+    shmctl(shmid_all_ended, IPC_RMID, shmbuf);
+    free_queue(ready_queue);
+    free_queue(run_queue);
+    free_queue(ended_queue);
+}
+
 /* ATUALIZA TIME DOS PROGS ESPERANDO NA FILA READY */
 void att_time(int alarm_countdown)
 {
@@ -179,10 +194,26 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 printf("\n\n");
 
                 //LIMPA FILA
+                printf("ANTES DE ENTRAR\n");
+                FILE* open = popen("ipcs -q", "r");
+                if (open == NULL)
+                {
+                    perror("Error while opening the file.\n");
+                    exit(EXIT_FAILURE);
+                }
+                
+                char ch;
+                while((ch = fgetc(open)) != EOF)
+                    printf("%c", ch);
+
                 do
                 {
+                    printf("ENTROU\n");
                     msg_from_nodo0.position = -1;
                     msgrcv(msgid_nodo_snd_file, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), 0, IPC_NOWAIT);
+                    if( msg_from_nodo0.position != -1){
+                        printf("DELETANDO MSG\n\n");
+                    }
                 } while (msg_from_nodo0.position != -1);
 
                 if (!is_empty(run_queue))

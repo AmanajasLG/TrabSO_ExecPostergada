@@ -9,6 +9,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <libgen.h>
+#include <limits.h>
 
 #include <sys/ipc.h>
 #include <sys/types.h>
