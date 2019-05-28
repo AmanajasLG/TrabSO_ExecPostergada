@@ -108,21 +108,24 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
             exec_end = (int)time(NULL);
 
             // manda mensagem de volta com
+            // printf("END NEIGHBOR %d NO %d\n", snd_end_neighbor, my_position);
             msg_2_snd.position = snd_end_neighbor + 1;
             msg_2_snd.end_info[0] = my_position;
             msg_2_snd.end_info[1] = exec_init;
             msg_2_snd.end_info[2] = exec_end;
-
+            
+            
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
-
+            
             while (!*all_ended)
             {
+                // printf("ESPERANDO MSG FILHOS NO %d\n", my_position);
                 /* MSG DOS FILHOS */
                 msgrcv(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
                 if (msg_exec_end.position != -1)
                 {
                     msg_exec_end.position = snd_end_neighbor + 1;
-                    msgsnd(msgid_nodo_snd_file, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
+                    msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
                     msg_exec_end.position = -1;
                 }
             }
@@ -195,6 +198,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
             msg_2_snd.end_info[1] = exec_init;
             msg_2_snd.end_info[2] = exec_end;
 
+            printf("MANDANDO MSG END NO 0\n");
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
             while (!*all_ended)

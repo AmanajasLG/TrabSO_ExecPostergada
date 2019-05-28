@@ -12,7 +12,7 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
 
-    int topology = atoi(argv[1]);
+    topology = atoi(argv[1]);
 
     if (topology < 0 && topology > 2)
     {
@@ -47,7 +47,8 @@ int main(int argc, char const *argv[])
         printf("erro na criacao da memoria compartilhada: %d\n", errno);
         exit(1);
     }
-
+    
+    signal(SIGTERM, end_program);
     ready_queue = start_queue();
     run_queue = start_queue();
     ended_queue = start_queue();
@@ -60,10 +61,8 @@ int main(int argc, char const *argv[])
 
     sleep(5);
 
-    NodoHypercube hypercube[16];
-    NodoTorus torus[16];
-    NodoList list[3];
-    TreeNodo tree[15];
+    
+    
 
     int my_position, count_end_origin;
 
@@ -73,10 +72,40 @@ int main(int argc, char const *argv[])
     case HYPERCUBE:
         create_hypercube(hypercube);
         print_hypercube(hypercube);
+         for (my_position = 0; my_position < 16; my_position++){
+            
+            pid = fork();
+            if (pid == 0){
+                if (my_position == 0)
+                {
+
+                    nodo_0_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, hypercube[0]);
+                }
+                else
+                {
+
+                    nodo_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, my_position, hypercube[my_position]);
+                }
+                break;
+            }
+
+            else if (pid < 0)
+            {
+                perror("fork");
+                end_program(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended);
+                exit(1);
+            }
+            if (my_position == 0)
+            {
+                pid_nodo0 = pid;
+            }
+            hypercube[my_position].pid = pid;
+        }
         count_end_origin = 16;
         break;
     case TORUS:
         create_torus(torus);
+        // print_hypercube(torus);
         for (my_position = 0; my_position < 16; my_position++){
             
             pid = fork();

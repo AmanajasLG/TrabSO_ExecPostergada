@@ -8,12 +8,29 @@
 #include "../include/queue_control.h"
 
 struct msg_nodo msg_2_nodo0;
-int msgid_nodo_snd_file, pid_nodo0;
+int msgid_nodo_snd_file, pid_nodo0, msgid_escale,  msgid_nodo_rcv_end,  shmid_all_ended;
 bool is_executing = false;
 
 /* QUANDO PROG TERMINA LIBERA TUDO */
-void end_program(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_ended){
+void end_program(){
+    int status;
     printf("DESTROY ALL\n");
+    for(int i = 0; i < 16; i++){
+        if(topology == 2 && i == 15)
+            break;
+
+        if(topology == 0){
+            kill(hypercube[i].pid, SIGKILL);
+            wait(&status);
+        }else if(topology == 1){
+            kill(torus[i].pid, SIGKILL);
+            wait(&status);
+        }else{
+            kill(tree[i].pid, SIGKILL);
+            wait(&status);
+        }
+                
+    }
     /* DESTROI FILAS E LISTAS */
     struct msqid_ds *msqbuf = malloc(sizeof(struct msqid_ds));
     struct shmid_ds *shmbuf = malloc(sizeof(struct shmid_ds));
@@ -103,11 +120,15 @@ void manda_exec_prog()
     /* SETA O PROX ALARM */
     alarm(get_first_sec());
 
-    printf("\nQUEUES SEND\n");
+    printf("\n============QUEUE INFO============\n");
+    printf("READY: ");
     print_queue(ready_queue);
+    printf("RUN: ");
     print_queue(run_queue);
+    printf("ENDED: ");
     print_queue(ended_queue);
-    printf("\n\n");
+    printf("\n==================================\n\n");
+
 }
 
 /* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
@@ -149,7 +170,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
             alarm_countdown = alarm(0);
             att_time(alarm_countdown);
             // print_queue(ready_queue);
-            if (msg_from_exec_post.sec < alarm_countdown)
+            if (msg_from_exec_post.sec < alarm_countdown || alarm_countdown == 0)
             {
                 insert_queue_ready_first_pos(msg_from_exec_post);
                 job++;
@@ -186,35 +207,23 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 printf("TERMINANDO EXECUCAO DO JOB %d - %s\n\n", run_queue->init->job, run_queue->init->arq_executavel);
                 remove_queue_run();
                 insert_queue_ended();
-
-                printf("\nQUEUES END\n");
+                            
+                printf("\n============QUEUE INFO============\n");
+                printf("READY: ");
                 print_queue(ready_queue);
+                printf("RUN: ");
                 print_queue(run_queue);
+                printf("ENDED: ");
                 print_queue(ended_queue);
-                printf("\n\n");
+                printf("\n==================================\n\n");
+
 
                 //LIMPA FILA
-                printf("ANTES DE ENTRAR\n");
-                FILE* open = popen("ipcs -q", "r");
-                if (open == NULL)
-                {
-                    perror("Error while opening the file.\n");
-                    exit(EXIT_FAILURE);
-                }
-                
-                char ch;
-                while((ch = fgetc(open)) != EOF)
-                    printf("%c", ch);
-
                 do
                 {
-                    printf("ENTROU\n");
-                    msg_from_nodo0.position = -1;
-                    msgrcv(msgid_nodo_snd_file, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), 0, IPC_NOWAIT);
-                    if( msg_from_nodo0.position != -1){
-                        printf("DELETANDO MSG\n\n");
-                    }
-                } while (msg_from_nodo0.position != -1);
+                    msg_2_nodo0.pid = -1;
+                    msgrcv(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0, IPC_NOWAIT);
+                } while (msg_2_nodo0.pid != -1);
 
                 if (!is_empty(run_queue))
                 {
@@ -223,7 +232,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 count_end = count_end_origin;
                 *all_ended = 1;
             }
-
+            msg_2_nodo0.pid = pid_nodo0;
             msg_from_nodo0.position = -1;
         }
     }

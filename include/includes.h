@@ -24,8 +24,6 @@
 #define KEY_NODO_FILE 0x8274
 #define KEY_ALL_ENDED 0x4543
 
-int *all_ended, job = 0;
-
 /* MSG RECEBIDA DO EXEC POST */
 struct msg
 {
@@ -114,5 +112,12 @@ struct tree_nodo
 };
 
 typedef struct tree_nodo TreeNodo;
+
+int *all_ended, job = 0;
+int topology;
+NodoHypercube hypercube[16];
+NodoTorus torus[16];
+TreeNodo tree[15];
+NodoList list[3];
 
 #endif
