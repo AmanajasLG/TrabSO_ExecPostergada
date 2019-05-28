@@ -198,7 +198,6 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
             msg_2_snd.end_info[1] = exec_init;
             msg_2_snd.end_info[2] = exec_end;
 
-            printf("MANDANDO MSG END NO 0\n");
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
             while (!*all_ended)

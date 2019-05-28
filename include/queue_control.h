@@ -72,6 +72,8 @@ int insert_queue_ready_first_pos(struct msg insert_msg)
     if (new_nodo == NULL)
         return 0;
 
+    new_nodo->end_time = 0;
+    new_nodo->init_time = 0;
     new_nodo->job = job;
     new_nodo->sec = insert_msg.sec;
     new_nodo->origin_sec = insert_msg.sec;
@@ -116,6 +118,8 @@ int insert_queue_ready(struct msg insert_msg)
     if (new_nodo == NULL)
         return 0;
 
+    new_nodo->end_time = 0;
+    new_nodo->init_time = 0;
     new_nodo->job = job;
     new_nodo->origin_sec = insert_msg.sec;
     new_nodo->sec = insert_msg.sec;
@@ -189,6 +193,8 @@ int insert_queue_run()
     if (new_nodo == NULL)
         return 0;
 
+    new_nodo->end_time = 0;
+    new_nodo->init_time = 0;
     new_nodo->job = nodo_to_run_queue->job;
     new_nodo->origin_sec = nodo_to_run_queue->origin_sec;
     new_nodo->sec = nodo_to_run_queue->sec;
@@ -221,7 +227,7 @@ int insert_queue_run()
 }
 
 /* ENDED QUEUE CONTROLLER */
-int insert_queue_ended()
+int insert_queue_ended(time_t init_time, time_t end_time)
 {
     if (ended_queue == NULL)
         return 0;
@@ -233,6 +239,8 @@ int insert_queue_ended()
     new_nodo->job = nodo_to_ended_queue->job;
     new_nodo->origin_sec = nodo_to_ended_queue->origin_sec;
     new_nodo->sec = nodo_to_ended_queue->sec;
+    new_nodo->end_time = end_time;
+    new_nodo->init_time = init_time;
     strcpy(new_nodo->arq_executavel, nodo_to_ended_queue->arq_executavel);
     new_nodo->next = NULL;
 

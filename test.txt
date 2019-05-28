@@ -1,0 +1,62 @@
+============QUEUE INFO============
+READY: EMPTY
+RUN: Nodo 0(1) -> 
+ENDED: EMPTY
+
+==================================
+
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+
+============QUEUE INFO============
+READY: EMPTY
+RUN: Nodo 0(1) -> Nodo 0(2) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO============
+READY: Nodo 198(200) -> Nodo 0(6) -> 
+RUN: Nodo 0(6) -> Nodo 198(200) -> Nodo 0(6) -> 
+ENDED: EMPTY
+
+==================================
+
+TERMINANDO EXECUCAO DO JOB 2 - test
+
+Hora de inicio: 28/05/2019, 16:12:00
+Hora de termino: 28/05/2019, 16:12:10
+
+
+============QUEUE INFO============
+READY: Nodo 0(6) -> 
+RUN: Nodo 0(6) -> 
+ENDED: Nodo 0(6) -> 
+
+==================================
+
+INICIANDO EXECUCAO DO JOB 2 - test
+
+msg to nodo0 [ 12318 | test ]
+
+============QUEUE INFO============
+READY: Nodo 0(6) -> 
+RUN: Nodo 0(6) -> 
+ENDED: Nodo 0(6) -> 
+
+==================================

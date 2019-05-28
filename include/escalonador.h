@@ -7,6 +7,8 @@
 #include "../include/tree.h"
 #include "../include/queue_control.h"
 
+int time_init;
+
 struct msg_nodo msg_2_nodo0;
 int msgid_nodo_snd_file, pid_nodo0, msgid_escale,  msgid_nodo_rcv_end,  shmid_all_ended;
 bool is_executing = false;
@@ -14,7 +16,7 @@ bool is_executing = false;
 /* QUANDO PROG TERMINA LIBERA TUDO */
 void end_program(){
     int status;
-    printf("DESTROY ALL\n");
+    printf("Removing topologies, queues and shared memories...\n");
     for(int i = 0; i < 16; i++){
         if(topology == 2 && i == 15)
             break;
@@ -31,6 +33,40 @@ void end_program(){
         }
                 
     }
+
+    struct queue_nodo *aux_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
+    printf("\nO ESCALONADOR SERA INTERROMPIDO!\nOS PROGRAMAS ABAIXO NAO SERAO EXECUTADOS:\n\n");
+    aux_nodo = ready_queue->init;
+    
+    while(aux_nodo != NULL){
+        printf("JOB: %d FILE: %s\n",aux_nodo->job, aux_nodo->arq_executavel);
+        aux_nodo = aux_nodo->next;
+        
+    }
+    
+    aux_nodo = run_queue->init;
+    
+    while(aux_nodo != NULL){
+        printf("JOB: %d FILE: %s\n", aux_nodo->job, aux_nodo->arq_executavel);
+        aux_nodo = aux_nodo->next;
+    }
+
+    printf("\n\n");
+    printf("OS PROGRAMAS A SEGUIR FORAM EXECUTADOS:\n\n");
+    
+    aux_nodo = ended_queue->init;
+
+    char init[30], end[30];
+
+    while(aux_nodo != NULL){
+        struct tm *tm_init = localtime(&aux_nodo->init_time);
+        strftime(init, 30, "%d/%m/%Y, %H:%M:%S", tm_init);
+        struct tm *tm_end = localtime(&aux_nodo->end_time);
+        strftime(end, 30, "%d/%m/%Y, %H:%M:%S", tm_end);
+
+        printf("JOB: %d FILE: %s SUBMISSON_TIME: %d INIT_TIME: [%s] END_TIME: [%s] MAKESPAN: %ld\n",aux_nodo->job, aux_nodo->arq_executavel, aux_nodo->origin_sec, init, end, aux_nodo->end_time - aux_nodo->init_time);
+        aux_nodo = aux_nodo->next;
+    }
     /* DESTROI FILAS E LISTAS */
     struct msqid_ds *msqbuf = malloc(sizeof(struct msqid_ds));
     struct shmid_ds *shmbuf = malloc(sizeof(struct shmid_ds));
@@ -41,6 +77,10 @@ void end_program(){
     free_queue(ready_queue);
     free_queue(run_queue);
     free_queue(ended_queue);
+    free(nodo_to_run_queue);
+    free(nodo_to_ended_queue);
+
+    exit(0);
 }
 
 /* ATUALIZA TIME DOS PROGS ESPERANDO NA FILA READY */
@@ -102,8 +142,9 @@ void manda_exec_prog()
         }
 
         printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
-
+        
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
+        time_init = (int)time(NULL);
 
         is_executing = true;
         *all_ended = 0;
@@ -187,26 +228,27 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
 
         if (msg_from_nodo0.position != -1)
         {
+
             count_end--;
-
-            char init[30], end[30];
-
-            printf("No %d terminou:\n", msg_from_nodo0.end_info[0]);
-            time_t init_time = (time_t)msg_from_nodo0.end_info[1];
-            struct tm *tm_init = localtime(&init_time);
-            strftime(init, 30, "%d/%m/%Y, %H:%M:%S", tm_init);
-            printf("Hora de inicio: %s\n", init);
-            time_t end_time = (time_t)msg_from_nodo0.end_info[2];
-            struct tm *tm_end = localtime(&end_time);
-            strftime(end, 30, "%d/%m/%Y, %H:%M:%S", tm_end);
-            printf("Hora de termino: %s\n\n", end);
 
             if (count_end == 0)
             {
                 is_executing = false;
+                
+                char init[30], end[30];
+                
                 printf("TERMINANDO EXECUCAO DO JOB %d - %s\n\n", run_queue->init->job, run_queue->init->arq_executavel);
+                time_t init_time = (time_t)time_init;
+                struct tm *tm_init = localtime(&init_time);
+                strftime(init, 30, "%d/%m/%Y, %H:%M:%S", tm_init);
+                printf("Hora de inicio: %s\n", init);
+                time_t end_time = (time_t)msg_from_nodo0.end_info[2];
+                struct tm *tm_end = localtime(&end_time);
+                strftime(end, 30, "%d/%m/%Y, %H:%M:%S", tm_end);
+                printf("Hora de termino: %s\n\n", end);
+                
                 remove_queue_run();
-                insert_queue_ended();
+                insert_queue_ended(init_time, end_time);
                             
                 printf("\n============QUEUE INFO============\n");
                 printf("READY: ");
@@ -225,6 +267,8 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                     msgrcv(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0, IPC_NOWAIT);
                 } while (msg_2_nodo0.pid != -1);
 
+                msg_2_nodo0.pid = pid_nodo0;
+
                 if (!is_empty(run_queue))
                 {
                     manda_exec_prog();
@@ -232,7 +276,6 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 count_end = count_end_origin;
                 *all_ended = 1;
             }
-            msg_2_nodo0.pid = pid_nodo0;
             msg_from_nodo0.position = -1;
         }
     }

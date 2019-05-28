@@ -52,6 +52,8 @@ struct end_msg
 
 struct queue_nodo
 {
+    time_t init_time;
+    time_t end_time;
     int job;
     int sec;
     int origin_sec;

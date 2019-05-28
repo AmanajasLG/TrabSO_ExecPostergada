@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     }
 
     /* COMEÇA A GERAR FILAS */
-    int pid, msgid_escale, msgid_nodo_rcv_end, shmid_all_ended;
+    int pid;
 
     if ((msgid_escale = msgget(KEY_ESCALE, IPC_CREAT | 0x1FF)) < 0)
     {
@@ -71,7 +71,7 @@ int main(int argc, char const *argv[])
 
     case HYPERCUBE:
         create_hypercube(hypercube);
-        print_hypercube(hypercube);
+
          for (my_position = 0; my_position < 16; my_position++){
             
             pid = fork();
@@ -105,7 +105,7 @@ int main(int argc, char const *argv[])
         break;
     case TORUS:
         create_torus(torus);
-        // print_hypercube(torus);
+
         for (my_position = 0; my_position < 16; my_position++){
             
             pid = fork();
