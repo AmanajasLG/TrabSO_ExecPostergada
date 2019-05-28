@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include <sys/ipc.h>
+#include <sys/signal.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <time.h>
-#include <stdbool.h>
-#include <libgen.h>
-#include <limits.h>
 
-int main(){
+void end()
+{
+    exit(0);
+}
 
-    printf("Hello World\n");
+int main()
+{
 
-    // for(int i = 0; i < 200000; i++);
-    sleep(10);
+    signal(SIGALRM, end);
+    alarm(10);
+
+    while (1)
+        ;
 
     return 0;
 }
-

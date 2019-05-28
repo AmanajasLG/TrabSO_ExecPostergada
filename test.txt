@@ -1,79 +1,65 @@
+Escalonator Ready for execution
 INICIANDO EXECUCAO DO JOB 0 - test
 
-msg to nodo0 [ 4679 | test ]
+msg to nodo0 [ 5416 | test ]
 
 ============QUEUE INFO============
-READY: Nodo 0(1) -> Nodo 196(200) -> 
-RUN: Nodo 0(6) -> 
+READY: Nodo 1(5) -> Nodo 14(20) -> Nodo 92(100) -> 
+RUN: Nodo 0(10) -> 
 ENDED: EMPTY
 
 ==================================
 
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
+
+============QUEUE INFO============
+READY: Nodo 13(20) -> Nodo 91(100) -> 
+RUN: Nodo 0(10) -> Nodo 0(5) -> 
+ENDED: EMPTY
+
+==================================
+
 TERMINANDO EXECUCAO DO JOB 0 - test
 
-Hora de inicio: 28/05/2019, 16:42:23
-Hora de termino: 28/05/2019, 16:42:23
+Hora de inicio: 28/05/2019, 20:41:03
+Hora de termino: 28/05/2019, 20:41:13
 
 
 ============QUEUE INFO============
-READY: Nodo 0(1) -> Nodo 196(200) -> 
-RUN: EMPTY
-ENDED: Nodo 0(6) -> 
+READY: Nodo 13(20) -> Nodo 91(100) -> 
+RUN: Nodo 0(5) -> 
+ENDED: Nodo 0(10) -> 
 
 ==================================
 
 INICIANDO EXECUCAO DO JOB 3 - test
 
-msg to nodo0 [ 4679 | test ]
+msg to nodo0 [ 5416 | test ]
 
 ============QUEUE INFO============
-READY: Nodo -2(1) -> Nodo 194(200) -> 
-RUN: Nodo 0(2) -> 
-ENDED: Nodo 0(6) -> 
+READY: Nodo 13(20) -> Nodo 91(100) -> 
+RUN: Nodo 0(5) -> 
+ENDED: Nodo 0(10) -> 
 
 ==================================
 
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-TERMINANDO EXECUCAO DO JOB 3 - test
-
-Hora de inicio: 28/05/2019, 16:42:28
-Hora de termino: 28/05/2019, 16:42:28
-
 
 ============QUEUE INFO============
-READY: Nodo -2(1) -> Nodo 194(200) -> 
-RUN: EMPTY
-ENDED: Nodo 0(6) -> Nodo 0(2) -> 
+READY: Nodo 78(100) -> 
+RUN: Nodo 0(5) -> Nodo 0(20) -> 
+ENDED: Nodo 0(10) -> 
 
 ==================================
+
+Removing topologies, queues and shared memories...
+
+O ESCALONADOR SERA INTERROMPIDO!
+OS PROGRAMAS ABAIXO NAO SERAO EXECUTADOS:
+
+JOB: 1 FILE: test
+JOB: 3 FILE: test
+JOB: 2 FILE: test
+
+
+OS PROGRAMAS A SEGUIR FORAM EXECUTADOS:
+
+JOB: 0 FILE: test SUBMISSON_TIME: 10 INIT_TIME: [28/05/2019, 20:41:03] END_TIME: [28/05/2019, 20:41:13] MAKESPAN: 10

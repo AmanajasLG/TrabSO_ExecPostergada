@@ -5,8 +5,6 @@
 #include "includes.h"
 
 Queue *ready_queue = NULL, *run_queue = NULL, *ended_queue = NULL;
-struct queue_nodo *nodo_to_run_queue = NULL;
-struct queue_nodo *nodo_to_ended_queue = NULL;
 
 Queue *start_queue()
 {
@@ -94,17 +92,55 @@ int insert_queue_ready_first_pos(struct msg insert_msg)
     return 1;
 }
 
-int remove_queue_ready()
+int from_ready_to_run()
 {
+
     if (ready_queue == NULL)
         return 0;
+
     if (ready_queue->init == NULL)
     {
         return 0;
     }
 
-    nodo_to_run_queue = ready_queue->init;
+    if (run_queue == NULL)
+        return 0;
+
+    struct queue_nodo *new_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
+
+    new_nodo->end_time = 0;
+    new_nodo->init_time = 0;
+    new_nodo->job = ready_queue->init->job;
+    new_nodo->origin_sec = ready_queue->init->origin_sec;
+    new_nodo->sec = ready_queue->init->sec;
+    strcpy(new_nodo->arq_executavel, ready_queue->init->arq_executavel);
+    new_nodo->next = NULL;
+
+    if (run_queue->init == NULL)
+    {
+        run_queue->init = new_nodo;
+    }
+    else
+    {
+        struct queue_nodo *tmp = run_queue->init;
+        struct queue_nodo *previous = NULL;
+
+        while (tmp != NULL)
+        {
+            previous = tmp;
+            tmp = tmp->next;
+        }
+
+        previous->next = new_nodo;
+
+        free(tmp);
+        free(previous);
+    }
+
+    struct queue_nodo *nodo = ready_queue->init;
     ready_queue->init = ready_queue->init->next;
+
+    free(nodo);
 
     return 1;
 }
@@ -169,7 +205,7 @@ int insert_queue_ready(struct msg insert_msg)
 }
 
 /* RUN QUEUE CONTROLLER */
-int remove_queue_run()
+int from_run_to_ended(time_t init_time, time_t end_time)
 {
     if (run_queue == NULL)
         return 0;
@@ -177,71 +213,18 @@ int remove_queue_run()
     {
         return 0;
     }
-    nodo_to_ended_queue = run_queue->init;
 
-    run_queue->init = run_queue->init->next;
-
-    return 1;
-}
-
-int insert_queue_run()
-{
-    if (run_queue == NULL)
-        return 0;
-
-    struct queue_nodo *new_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
-    if (new_nodo == NULL)
-        return 0;
-
-    new_nodo->end_time = 0;
-    new_nodo->init_time = 0;
-    new_nodo->job = nodo_to_run_queue->job;
-    new_nodo->origin_sec = nodo_to_run_queue->origin_sec;
-    new_nodo->sec = nodo_to_run_queue->sec;
-    strcpy(new_nodo->arq_executavel, nodo_to_run_queue->arq_executavel);
-    new_nodo->next = NULL;
-
-    nodo_to_run_queue = NULL;
-
-    if (run_queue->init == NULL)
-    { //empty queue
-        run_queue->init = new_nodo;
-    }
-    else
-    {
-        struct queue_nodo *tmp = run_queue->init;
-        struct queue_nodo *previous = NULL;
-
-        while (tmp != NULL)
-        {
-            previous = tmp;
-            tmp = tmp->next;
-        }
-
-        previous->next = new_nodo;
-
-        free(tmp);
-        free(previous);
-    }
-    return 1;
-}
-
-/* ENDED QUEUE CONTROLLER */
-int insert_queue_ended(time_t init_time, time_t end_time)
-{
     if (ended_queue == NULL)
         return 0;
 
     struct queue_nodo *new_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
-    if (nodo_to_ended_queue == NULL)
-        return 0;
 
-    new_nodo->job = nodo_to_ended_queue->job;
-    new_nodo->origin_sec = nodo_to_ended_queue->origin_sec;
-    new_nodo->sec = nodo_to_ended_queue->sec;
+    new_nodo->job = run_queue->init->job;
+    new_nodo->origin_sec = run_queue->init->origin_sec;
+    new_nodo->sec = run_queue->init->sec;
     new_nodo->end_time = end_time;
     new_nodo->init_time = init_time;
-    strcpy(new_nodo->arq_executavel, nodo_to_ended_queue->arq_executavel);
+    strcpy(new_nodo->arq_executavel, run_queue->init->arq_executavel);
     new_nodo->next = NULL;
 
     if (ended_queue->init == NULL)
@@ -261,6 +244,20 @@ int insert_queue_ended(time_t init_time, time_t end_time)
 
         previous->next = new_nodo;
     }
+
+    struct queue_nodo *nodo = run_queue->init;
+    run_queue->init = run_queue->init->next;
+
+    return 1;
+}
+
+int insert_queue_run()
+{
+}
+
+/* ENDED QUEUE CONTROLLER */
+int insert_queue_ended(time_t init_time, time_t end_time)
+{
 
     return 1;
 }
