@@ -1,62 +1,79 @@
-============QUEUE INFO============
-READY: EMPTY
-RUN: Nodo 0(1) -> 
-ENDED: EMPTY
+INICIANDO EXECUCAO DO JOB 0 - test
 
-==================================
-
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
-Hello World
+msg to nodo0 [ 4679 | test ]
 
 ============QUEUE INFO============
-READY: EMPTY
-RUN: Nodo 0(1) -> Nodo 0(2) -> 
-ENDED: EMPTY
-
-==================================
-
-
-============QUEUE INFO============
-READY: Nodo 198(200) -> Nodo 0(6) -> 
-RUN: Nodo 0(6) -> Nodo 198(200) -> Nodo 0(6) -> 
-ENDED: EMPTY
-
-==================================
-
-TERMINANDO EXECUCAO DO JOB 2 - test
-
-Hora de inicio: 28/05/2019, 16:12:00
-Hora de termino: 28/05/2019, 16:12:10
-
-
-============QUEUE INFO============
-READY: Nodo 0(6) -> 
+READY: Nodo 0(1) -> Nodo 196(200) -> 
 RUN: Nodo 0(6) -> 
+ENDED: EMPTY
+
+==================================
+
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+TERMINANDO EXECUCAO DO JOB 0 - test
+
+Hora de inicio: 28/05/2019, 16:42:23
+Hora de termino: 28/05/2019, 16:42:23
+
+
+============QUEUE INFO============
+READY: Nodo 0(1) -> Nodo 196(200) -> 
+RUN: EMPTY
 ENDED: Nodo 0(6) -> 
 
 ==================================
 
-INICIANDO EXECUCAO DO JOB 2 - test
+INICIANDO EXECUCAO DO JOB 3 - test
 
-msg to nodo0 [ 12318 | test ]
+msg to nodo0 [ 4679 | test ]
 
 ============QUEUE INFO============
-READY: Nodo 0(6) -> 
-RUN: Nodo 0(6) -> 
+READY: Nodo -2(1) -> Nodo 194(200) -> 
+RUN: Nodo 0(2) -> 
 ENDED: Nodo 0(6) -> 
+
+==================================
+
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+TERMINANDO EXECUCAO DO JOB 3 - test
+
+Hora de inicio: 28/05/2019, 16:42:28
+Hora de termino: 28/05/2019, 16:42:28
+
+
+============QUEUE INFO============
+READY: Nodo -2(1) -> Nodo 194(200) -> 
+RUN: EMPTY
+ENDED: Nodo 0(6) -> Nodo 0(2) -> 
 
 ==================================

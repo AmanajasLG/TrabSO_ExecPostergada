@@ -11,7 +11,9 @@ int main(){
 
     printf("Hello World\n");
 
-    for(int i = 0; i < 20000; i++);
+    // for(int i = 0; i < 200000; i++);
+    sleep(10);
 
     return 0;
 }
+

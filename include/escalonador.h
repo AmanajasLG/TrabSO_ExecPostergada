@@ -211,7 +211,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
             alarm_countdown = alarm(0);
             att_time(alarm_countdown);
             // print_queue(ready_queue);
-            if (msg_from_exec_post.sec < alarm_countdown || alarm_countdown == 0)
+            if (msg_from_exec_post.sec < alarm_countdown)
             {
                 insert_queue_ready_first_pos(msg_from_exec_post);
                 job++;
@@ -221,7 +221,14 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
             {
                 insert_queue_ready(msg_from_exec_post);
                 job++;
-                alarm(alarm_countdown);
+                if(alarm_countdown == 0 && ready_queue->init->sec == 0){
+                    manda_exec_prog();
+                }else if (alarm_countdown == 0){
+                    alarm(ready_queue->init->sec);
+                }else{
+                    alarm(alarm_countdown);
+                }
+                
             }
             msg_from_exec_post.sec = -1;
         }
