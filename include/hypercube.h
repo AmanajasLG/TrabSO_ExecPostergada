@@ -125,7 +125,7 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
                         msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
                     }
 
-                    msg_2_snd.position = snd_end_neighbor + ALL_ENDED_DELTA;
+                    msg_all_ended.id = snd_end_neighbor + ALL_ENDED_DELTA;
                     msgsnd(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
                     break;
                 }

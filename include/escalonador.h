@@ -288,8 +288,9 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), IPC_NOWAIT);
                 printf("MSG ENVIADA ALL_ENDED!!\n");
 
+                msg_all_ended.id = -1;
                 msgrcv(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), pid_nodo0, 0);
-
+                printf("NAO BOLOQUEOU E A MSG FOI: %ld", msg_all_ended.id);
                 if (!is_empty(run_queue))
                 {
                     manda_exec_prog();
