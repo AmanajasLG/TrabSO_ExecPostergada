@@ -25,17 +25,17 @@ void end_program()
 
         if (topology == 0)
         {
-            kill(hypercube[i].pid, SIGKILL);
+            kill(hypercube[i].pid, SIGTERM);
             wait(&status);
         }
         else if (topology == 1)
         {
-            kill(torus[i].pid, SIGKILL);
+            kill(torus[i].pid, SIGTERM);
             wait(&status);
         }
         else
         {
-            kill(tree[i].pid, SIGKILL);
+            kill(tree[i].pid, SIGTERM);
             wait(&status);
         }
     }
@@ -282,6 +282,8 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 msg_2_nodo0.pid = pid_nodo0;
                 count_end = count_end_origin;
                 *all_ended = 1;
+
+                sleep(0.5);
 
                 if (!is_empty(run_queue))
                 {

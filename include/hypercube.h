@@ -4,6 +4,20 @@
 
 #include "includes.h"
 
+int pid_son_process;
+
+void end_process()
+{
+    int status;
+    if (pid_son_process != 0)
+    {
+        kill(pid_son_process, SIGKILL);
+        wait(&status);
+    }
+
+    exit(0);
+}
+
 void create_hypercube(NodoHypercube hypercube[16])
 {
     for (int i = 0; i < 16; i++)
@@ -32,12 +46,12 @@ void print_hypercube(NodoHypercube hypercube[16])
 
 void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, NodoHypercube my_nodo)
 {
+    signal(SIGTERM, end_process);
     struct end_msg msg_2_snd;
     struct end_msg msg_exec_end;
     struct msg_nodo msg_exec_name;
     int exec_end, exec_init;
 
-    int pid;
     all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_exec_name.pid = -1;
@@ -72,14 +86,14 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
             //TODO ACABAR O PROGRAMA
-            if ((pid = fork()) < 0)
+            if ((pid_son_process = fork()) < 0)
             {
                 printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0)
+            if (pid_son_process == 0)
             {
                 execl(msg_exec_name.arq_executavel, filename, (char *)0);
             }
@@ -88,6 +102,8 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
             int state;
             wait(&state);
             exec_end = (int)time(NULL);
+
+            pid_son_process = 0;
 
             // manda mensagem de volta com
             // printf("END NEIGHBOR %d NO %d\n", snd_end_neighbor, my_position);
@@ -120,12 +136,12 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
 
 void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, NodoHypercube my_nodo)
 {
+    signal(SIGTERM, end_process);
     struct end_msg msg_2_snd;
     struct end_msg msg_exec_end;
     struct msg_nodo msg_exec_name;
     int exec_end, exec_init;
 
-    int pid;
     all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_exec_name.pid = -1;
@@ -153,14 +169,14 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int 
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
             //TODO ACABAR O PROGRAMA
-            if ((pid = fork()) < 0)
+            if ((pid_son_process = fork()) < 0)
             {
                 printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0)
+            if (pid_son_process == 0)
             {
                 if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0)
                 {
@@ -171,6 +187,8 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int 
             // espera no atual esperar de executar
             int state;
             wait(&state);
+
+            pid_son_process = 0;
 
             exec_end = (int)time(NULL);
 

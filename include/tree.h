@@ -4,6 +4,20 @@
 
 #include "includes.h"
 
+int pid_son_process;
+
+void end_process()
+{
+    int status;
+    if (pid_son_process != 0)
+    {
+        kill(pid_son_process, SIGKILL);
+        wait(&status);
+    }
+
+    exit(0);
+}
+
 void create_tree(TreeNodo fattree[15])
 {
     for (int i = 0; i < 15; i++)
@@ -59,12 +73,12 @@ void print_tree(TreeNodo tree[15])
 
 void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, TreeNodo my_nodo)
 {
+    signal(SIGTERM, end_process);
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
     struct msg_nodo msg_2_rcv;
     int exec_end, exec_init;
 
-    int pid;
     all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_2_rcv.pid = -1;
@@ -96,14 +110,14 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
 
             // printf("RECEBE ARQUIVO %s\n",  msg_2_rcv.arq_executavel);
 
-            if ((pid = fork()) < 0)
+            if ((pid_son_process = fork()) < 0)
             {
                 printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0)
+            if (pid_son_process == 0)
             {
                 execl(msg_2_rcv.arq_executavel, filename, (char *)0);
             }
@@ -113,6 +127,7 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
             wait(&state);
 
             exec_end = (int)time(NULL);
+            pid_son_process = 0;
 
             // manda mensagem de volta com
             msg_2_snd.position = my_nodo.parent + 1;
@@ -143,11 +158,12 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
 
 void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, TreeNodo my_nodo)
 {
+    signal(SIGTERM, end_process);
     struct end_msg msg_2_snd;
     struct end_msg msg_2_rcv_end;
     struct msg_nodo msg_2_rcv;
     int exec_end, exec_init;
-    int pid;
+
     all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_2_rcv.pid = -1;
@@ -173,14 +189,14 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             char filename[100];
             strcpy(filename, basename(msg_2_rcv.arq_executavel));
 
-            if ((pid = fork()) < 0)
+            if ((pid_son_process = fork()) < 0)
             {
                 printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0)
+            if (pid_son_process == 0)
             {
                 if (execl(msg_2_rcv.arq_executavel, filename, (char *)0) < 0)
                 {
@@ -192,6 +208,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
             int state;
             wait(&state);
             exec_end = (int)time(NULL);
+            pid_son_process = 0;
 
             // manda mensagem de volta
             msg_2_snd.position = getpid();

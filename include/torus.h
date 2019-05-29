@@ -4,6 +4,20 @@
 
 #include "includes.h"
 
+int pid_son_process;
+
+void end_process()
+{
+    int status;
+    if (pid_son_process != 0)
+    {
+        kill(pid_son_process, SIGKILL);
+        wait(&status);
+    }
+
+    exit(0);
+}
+
 void create_torus(NodoTorus torus[16])
 {
     int x, y;
@@ -47,9 +61,9 @@ void print_torus(NodoTorus torus[16])
     }
 }
 
-
-void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, NodoTorus my_nodo){
-    
+void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, NodoTorus my_nodo)
+{
+    signal(SIGTERM, end_process);
     struct end_msg msg_2_snd;
     struct end_msg msg_exec_end;
     struct msg_nodo msg_exec_name;
@@ -60,11 +74,11 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
 
     msg_exec_name.pid = -1;
     msg_exec_end.position = -1;
-    
+
     int snd_end_neighbor = 50;
     for (int i = 0; i < 4; i++)
     {
-        if(my_nodo.neighbor[i] < snd_end_neighbor)
+        if (my_nodo.neighbor[i] < snd_end_neighbor)
             snd_end_neighbor = my_nodo.neighbor[i];
     }
 
@@ -82,7 +96,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
                 msg_exec_name.pid = my_nodo.neighbor[i] + 1;
                 msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
-            
+
             // separa nome arq do path
             char filename[100];
             strcpy(filename, basename(msg_exec_name.arq_executavel));
@@ -90,14 +104,14 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
             //TODO ACABAR O PROGRAMA
-            if ((pid = fork()) < 0)
+            if ((pid_son_process = fork()) < 0)
             {
                 printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0)
+            if (pid_son_process == 0)
             {
                 execl(msg_exec_name.arq_executavel, filename, (char *)0);
             }
@@ -106,6 +120,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
             int state;
             wait(&state);
             exec_end = (int)time(NULL);
+            pid_son_process = 0;
 
             // manda mensagem de volta com
             // printf("END NEIGHBOR %d NO %d\n", snd_end_neighbor, my_position);
@@ -113,10 +128,9 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
             msg_2_snd.end_info[0] = my_position;
             msg_2_snd.end_info[1] = exec_init;
             msg_2_snd.end_info[2] = exec_end;
-            
-            
+
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
-            
+
             while (!*all_ended)
             {
                 // printf("ESPERANDO MSG FILHOS NO %d\n", my_position);
@@ -135,11 +149,11 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
     }
 
     shmdt((char *)0);
-
 }
 
 void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, NodoTorus my_nodo)
 {
+    signal(SIGTERM, end_process);
     struct end_msg msg_2_snd;
     struct end_msg msg_exec_end;
     struct msg_nodo msg_exec_name;
@@ -165,7 +179,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
                 msg_exec_name.pid = my_nodo.neighbor[i] + 1;
                 msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
-            
+
             // separa nome arq do path
             char filename[100];
             strcpy(filename, basename(msg_exec_name.arq_executavel));
@@ -173,15 +187,17 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
             //TODO ACABAR O PROGRAMA
-            if ((pid = fork()) < 0)
+            if ((pid_son_process = fork()) < 0)
             {
                 printf("Error on fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
-            if (pid == 0) {
-                if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0){
+            if (pid_son_process == 0)
+            {
+                if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0)
+                {
                     printf("ERR: execl failed: %d\n", errno);
                 }
             }
@@ -191,6 +207,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
             wait(&state);
 
             exec_end = (int)time(NULL);
+            pid_son_process = 0;
 
             // manda mensagem de volta com
             msg_2_snd.position = getpid();
