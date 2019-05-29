@@ -1,7 +1,5 @@
-Escalonator Ready for execution
-INICIANDO EXECUCAO DO JOB 0 - test
+NICIANDO EXECUCAO DO JOB 0 - test
 
-msg to nodo0 [ 5416 | test ]
 
 ============QUEUE INFO============
 READY: Nodo 1(5) -> Nodo 14(20) -> Nodo 92(100) -> 
@@ -18,10 +16,26 @@ ENDED: EMPTY
 
 ==================================
 
+NÓ 0 TERMINOU!
+NÓ 3 TERMINOU! ALL_ENDED: 103
+NÓ 7 TERMINOU! ALL_ENDED: 107
+NÓ 14 TERMINOU! ALL_ENDED: 114
+NÓ 10 TERMINOU! ALL_ENDED: 110
+NÓ 15 TERMINOU! ALL_ENDED: 115
+NÓ 13 TERMINOU! ALL_ENDED: 113
+NÓ 2 TERMINOU! ALL_ENDED: 102
+NÓ 5 TERMINOU! ALL_ENDED: 105
+NÓ 11 TERMINOU! ALL_ENDED: 111
+NÓ 1 TERMINOU! ALL_ENDED: 101
+NÓ 12 TERMINOU! ALL_ENDED: 112
+NÓ 9 TERMINOU! ALL_ENDED: 109
+NÓ 8 TERMINOU! ALL_ENDED: 108
+NÓ 6 TERMINOU! ALL_ENDED: 106
+NÓ 4 TERMINOU! ALL_ENDED: 104
 TERMINANDO EXECUCAO DO JOB 0 - test
 
-Hora de inicio: 28/05/2019, 20:41:03
-Hora de termino: 28/05/2019, 20:41:13
+Hora de inicio: 28/05/2019, 22:45:07
+Hora de termino: 28/05/2019, 22:45:17
 
 
 ============QUEUE INFO============
@@ -31,9 +45,14 @@ ENDED: Nodo 0(10) ->
 
 ==================================
 
+MSG ENVIADA ALL_ENDED!!
+MSG RECEBIDA ALL_ENDED!!
+VIZINHOS NÓ 0: 101
+VIZINHOS NÓ 0: 102
+VIZINHOS NÓ 0: 104
+VIZINHOS NÓ 0: 108
 INICIANDO EXECUCAO DO JOB 3 - test
 
-msg to nodo0 [ 5416 | test ]
 
 ============QUEUE INFO============
 READY: Nodo 13(20) -> Nodo 91(100) -> 
@@ -49,17 +68,3 @@ RUN: Nodo 0(5) -> Nodo 0(20) ->
 ENDED: Nodo 0(10) -> 
 
 ==================================
-
-Removing topologies, queues and shared memories...
-
-O ESCALONADOR SERA INTERROMPIDO!
-OS PROGRAMAS ABAIXO NAO SERAO EXECUTADOS:
-
-JOB: 1 FILE: test
-JOB: 3 FILE: test
-JOB: 2 FILE: test
-
-
-OS PROGRAMAS A SEGUIR FORAM EXECUTADOS:
-
-JOB: 0 FILE: test SUBMISSON_TIME: 10 INIT_TIME: [28/05/2019, 20:41:03] END_TIME: [28/05/2019, 20:41:13] MAKESPAN: 10

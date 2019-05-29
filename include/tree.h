@@ -122,7 +122,7 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_a
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
-            while (!*all_ended)
+            while (1)
             {
                 /* MSG DOS FILHOS */
                 msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
@@ -201,7 +201,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
-            while (!*all_ended)
+            while (1)
             {
                 /* MSG DOS FILHOS */
                 msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 1, IPC_NOWAIT);

@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
         printf("erro na criacao da memoria compartilhada: %d\n", errno);
         exit(1);
     }
-    
+
     signal(SIGTERM, end_program);
     ready_queue = start_queue();
     run_queue = start_queue();
@@ -61,9 +61,6 @@ int main(int argc, char const *argv[])
 
     sleep(5);
 
-    
-    
-
     int my_position, count_end_origin;
 
     switch (topology)
@@ -72,10 +69,12 @@ int main(int argc, char const *argv[])
     case HYPERCUBE:
         create_hypercube(hypercube);
 
-         for (my_position = 0; my_position < 16; my_position++){
-            
+        for (my_position = 0; my_position < 16; my_position++)
+        {
+
             pid = fork();
-            if (pid == 0){
+            if (pid == 0)
+            {
                 if (my_position == 0)
                 {
 
@@ -106,10 +105,12 @@ int main(int argc, char const *argv[])
     case TORUS:
         create_torus(torus);
 
-        for (my_position = 0; my_position < 16; my_position++){
-            
+        for (my_position = 0; my_position < 16; my_position++)
+        {
+
             pid = fork();
-            if (pid == 0){
+            if (pid == 0)
+            {
                 if (my_position == 0)
                 {
 
@@ -173,39 +174,6 @@ int main(int argc, char const *argv[])
         }
         count_end_origin = 15;
         break;
-    case LIST:
-        list[0].neighbor[0] = 1;
-        list[0].neighbor[1] = -1;
-        list[0].neighbor[2] = -1;
-        list[0].neighbor[3] = -1;
-
-        list[1].neighbor[0] = 0;
-        list[1].neighbor[1] = 2;
-        list[1].neighbor[2] = -1;
-        list[1].neighbor[3] = -1;
-
-        list[2].neighbor[0] = 1;
-        list[2].neighbor[1] = -1;
-        list[2].neighbor[2] = -1;
-        list[2].neighbor[3] = -1;
-
-        for (my_position = 0; my_position < 3; my_position++)
-        {
-            pid = fork();
-            if (pid == 0)
-                break;
-            else if (pid < 0)
-            {
-                perror("fork");
-                end_program(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended);
-                exit(1);
-            }
-            if (my_position == 0)
-            {
-                pid_nodo0 = pid;
-            }
-        }
-        count_end_origin = 3;
     }
 
     // escalonador
@@ -213,6 +181,6 @@ int main(int argc, char const *argv[])
     {
         loop_escalonator(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended, count_end_origin);
     }
-    
+
     return 0;
 }

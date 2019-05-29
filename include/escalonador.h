@@ -188,6 +188,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     int alarm_countdown, count_end = count_end_origin;
     struct msg msg_from_exec_post;
     struct end_msg msg_from_nodo0;
+    struct msg_all_ended msg_all_ended;
     all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
     *all_ended = 0;
 
@@ -202,6 +203,9 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     /* SETA LONG -1 PARA MOSTRAR QUE N TEM MSG NOVA (PRIMEIRA MSG JÁ TRATADA ACIMA) */
     msg_from_exec_post.sec = -1;
     msg_from_nodo0.position = -1;
+    /* SETA ALL_ENDED INFO */
+    msg_all_ended.id = ALL_ENDED_DELTA;
+    msg_all_ended.all_ended = true;
     while (1)
     {
         /* ESPERA MSG DO EXEC POST OU DO NÓ 0 INFORMANDO QUE ALGUM NÓ ACABOU DE EXEC */
@@ -281,7 +285,10 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
 
                 msg_2_nodo0.pid = pid_nodo0;
                 count_end = count_end_origin;
-                *all_ended = 1;
+                msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), IPC_NOWAIT);
+                printf("MSG ENVIADA ALL_ENDED!!\n");
+
+                msgrcv(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), pid_nodo0, 0);
 
                 if (!is_empty(run_queue))
                 {
@@ -291,8 +298,6 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
             msg_from_nodo0.position = -1;
         }
     }
-
-    shmdt((char *)0);
 }
 
 #endif

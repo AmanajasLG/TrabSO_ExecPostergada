@@ -6,19 +6,21 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-void end()
-{
-    exit(0);
-}
+// void end()
+// {
+//     exit(0);
+// }
 
 int main()
 {
 
-    signal(SIGALRM, end);
+    /* signal(SIGALRM, end);
     alarm(10);
 
     while (1)
-        ;
+        ; */
+
+    sleep(10);
 
     return 0;
 }

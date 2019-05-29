@@ -24,11 +24,20 @@
 #define KEY_NODO_FILE 0x8274
 #define KEY_ALL_ENDED 0x4543
 
+#define ALL_ENDED_DELTA 100
+
 /* MSG RECEBIDA DO EXEC POST */
 struct msg
 {
     long sec;
     char arq_executavel[100];
+};
+
+/* MSG RECEBIDA DO EXEC POST */
+struct msg_all_ended
+{
+    long id;
+    bool all_ended;
 };
 
 /* MSG ENVIADA PARA OS NÓS */
