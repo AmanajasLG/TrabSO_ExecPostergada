@@ -20,7 +20,7 @@ int main()
     while (1)
         ; */
 
-    sleep(10);
+    sleep(1);
 
     return 0;
 }

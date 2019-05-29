@@ -205,7 +205,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     msg_from_nodo0.position = -1;
     /* SETA ALL_ENDED INFO */
     msg_all_ended.id = ALL_ENDED_DELTA;
-    msg_all_ended.all_ended = true;
+    msg_all_ended.all_ended = 1;
     while (1)
     {
         /* ESPERA MSG DO EXEC POST OU DO NÓ 0 INFORMANDO QUE ALGUM NÓ ACABOU DE EXEC */
@@ -285,12 +285,14 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
 
                 msg_2_nodo0.pid = pid_nodo0;
                 count_end = count_end_origin;
-                msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), IPC_NOWAIT);
+                msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(&msg_2_nodo0) - sizeof(long), IPC_NOWAIT);
                 printf("MSG ENVIADA ALL_ENDED!!\n");
 
-                msg_all_ended.id = -1;
-                msgrcv(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), pid_nodo0, 0);
-                printf("NAO BOLOQUEOU E A MSG FOI: %ld", msg_all_ended.id);
+                msg_2_nodo0.pid = -1;
+                // printf("ERRNO ANTES: %d\n", errno);
+                msgrcv(msgid_nodo_rcv_end, &msg_from_nodo0, sizeof(msg_from_nodo0) - sizeof(long), pid_nodo0, 0);
+                // printf("ERRNO DEPOIS: %d\n", errno);
+                printf("NAO BOLOQUEOU E A MSG FOI: %ld", msg_from_nodo0.position);
                 if (!is_empty(run_queue))
                 {
                     manda_exec_prog();

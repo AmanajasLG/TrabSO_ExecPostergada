@@ -24,7 +24,7 @@
 #define KEY_NODO_FILE 0x8274
 #define KEY_ALL_ENDED 0x4543
 
-#define ALL_ENDED_DELTA 100
+#define ALL_ENDED_DELTA 20
 
 /* MSG RECEBIDA DO EXEC POST */
 struct msg
@@ -37,7 +37,7 @@ struct msg
 struct msg_all_ended
 {
     long id;
-    bool all_ended;
+    int all_ended;
 };
 
 /* MSG ENVIADA PARA OS NÓS */
