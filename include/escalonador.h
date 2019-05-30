@@ -74,12 +74,9 @@ void end_program()
         aux_nodo = aux_nodo->next;
     }
     /* DESTROI FILAS E LISTAS */
-    struct msqid_ds *msqbuf = malloc(sizeof(struct msqid_ds));
-    struct shmid_ds *shmbuf = malloc(sizeof(struct shmid_ds));
-    msgctl(msgid_escale, IPC_RMID, msqbuf);
-    msgctl(msgid_nodo_snd_file, IPC_RMID, msqbuf);
-    msgctl(msgid_nodo_rcv_end, IPC_RMID, msqbuf);
-    shmctl(shmid_all_ended, IPC_RMID, shmbuf);
+    msgctl(msgid_escale, IPC_RMID, NULL);
+    msgctl(msgid_nodo_snd_file, IPC_RMID, NULL);
+    msgctl(msgid_nodo_rcv_end, IPC_RMID, NULL);
     free_queue(ready_queue);
     free_queue(run_queue);
     free_queue(ended_queue);
@@ -153,7 +150,6 @@ void manda_exec_prog()
         // printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
 
         is_executing = true;
-        *all_ended = 0;
 
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
     }
@@ -185,7 +181,7 @@ void manda_exec_prog()
 }
 
 /* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
-void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_ended, int count_end_origin)
+void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_origin)
 {
     printf("Escalonator Ready for execution\n");
     msg_2_nodo0.pid = pid_nodo0;
@@ -198,8 +194,6 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     int alarm_countdown, count_end = count_end_origin;
     struct msg msg_from_exec_post;
     struct end_msg msg_from_nodo0;
-    all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
-    *all_ended = 0;
 
     /* ESPERA A PRIMEIRA MGS BLOQ PQ SE AINDA N RECEBEU NENHUMA NÃO TEM O QUE FAZER */
     msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, 0);

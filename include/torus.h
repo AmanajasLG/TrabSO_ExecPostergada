@@ -4,20 +4,6 @@
 
 #include "includes.h"
 
-int pid_son_process = 0;
-
-void end_node()
-{
-    int status;
-
-    if (pid_son_process != 0)
-    {
-        kill(SIGKILL, pid_son_process);
-        wait(&status);
-    }
-    exit(0);
-}
-
 void create_torus(NodoTorus torus[16])
 {
     int x, y;
@@ -108,7 +94,7 @@ void print_torus(NodoTorus torus[16])
     }
 }
 
-void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, int my_position, NodoTorus my_nodo)
+void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_position, NodoTorus my_nodo)
 {
     signal(SIGTERM, end_node);
 
@@ -170,7 +156,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
 
-            while (1 && my_position < 8)
+            while (my_position < 8)
             {
                 // printf("ESPERANDO MSG FILHOS NO %d\n", my_position);
                 /* MSG DOS FILHOS */
@@ -196,7 +182,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_
     }
 }
 
-void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, NodoTorus my_nodo)
+void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoTorus my_nodo)
 {
     signal(SIGTERM, end_node);
     struct end_msg msg_2_snd;
@@ -280,8 +266,6 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmi
             msg_exec_name.pid = -1;
         }
     }
-
-    shmdt((char *)0);
 }
 
 #endif

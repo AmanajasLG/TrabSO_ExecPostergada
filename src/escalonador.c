@@ -42,12 +42,6 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    if ((shmid_all_ended = shmget(KEY_ALL_ENDED, sizeof(int), IPC_CREAT | 0x1ff)) < 0)
-    {
-        printf("erro na criacao da memoria compartilhada: %d\n", errno);
-        exit(1);
-    }
-
     signal(SIGTERM, end_program);
     ready_queue = start_queue();
     run_queue = start_queue();
@@ -78,12 +72,12 @@ int main(int argc, char const *argv[])
                 if (my_position == 0)
                 {
 
-                    nodo_0_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, hypercube[0]);
+                    nodo_0_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, hypercube[0]);
                 }
                 else
                 {
 
-                    nodo_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, my_position, hypercube[my_position]);
+                    nodo_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, my_position, hypercube[my_position]);
                 }
                 break;
             }
@@ -91,7 +85,7 @@ int main(int argc, char const *argv[])
             else if (pid < 0)
             {
                 perror("fork");
-                end_program(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended);
+                end_program(msgid_escale, msgid_nodo_rcv_end);
                 exit(1);
             }
             if (my_position == 0)
@@ -114,12 +108,12 @@ int main(int argc, char const *argv[])
                 if (my_position == 0)
                 {
 
-                    nodo_0_loop_torus(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, torus[0]);
+                    nodo_0_loop_torus(msgid_nodo_snd_file, msgid_nodo_rcv_end, torus[0]);
                 }
                 else
                 {
 
-                    nodo_loop_torus(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, my_position, torus[my_position]);
+                    nodo_loop_torus(msgid_nodo_snd_file, msgid_nodo_rcv_end, my_position, torus[my_position]);
                 }
                 break;
             }
@@ -127,7 +121,7 @@ int main(int argc, char const *argv[])
             else if (pid < 0)
             {
                 perror("fork");
-                end_program(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended);
+                end_program(msgid_escale, msgid_nodo_rcv_end);
                 exit(1);
             }
             if (my_position == 0)
@@ -150,12 +144,12 @@ int main(int argc, char const *argv[])
                 if (my_position == 0)
                 {
 
-                    nodo_0_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, tree[0]);
+                    nodo_0_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, tree[0]);
                 }
                 else
                 {
 
-                    nodo_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, shmid_all_ended, my_position, tree[my_position]);
+                    nodo_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, my_position, tree[my_position]);
                 }
                 break;
             }
@@ -163,7 +157,7 @@ int main(int argc, char const *argv[])
             else if (pid < 0)
             {
                 perror("fork");
-                end_program(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended);
+                end_program(msgid_escale, msgid_nodo_rcv_end);
                 exit(1);
             }
             if (my_position == 0)
@@ -179,7 +173,7 @@ int main(int argc, char const *argv[])
     // escalonador
     if (pid != 0)
     {
-        loop_escalonator(msgid_escale, msgid_nodo_rcv_end, shmid_all_ended, count_end_origin);
+        loop_escalonator(msgid_escale, msgid_nodo_rcv_end, count_end_origin);
     }
 
     return 0;

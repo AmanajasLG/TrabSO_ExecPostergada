@@ -17,14 +17,24 @@
 #include <sys/errno.h>
 #include <sys/wait.h>
 #include <sys/signal.h>
-#include <sys/shm.h>
 
 #define KEY_ESCALE 0x03718
 #define KEY_NODO_END 0x6659
 #define KEY_NODO_FILE 0x8274
-#define KEY_ALL_ENDED 0x4543
 
-#define ALL_ENDED_DELTA 100
+int pid_son_process = 0;
+
+void end_node()
+{
+    int status;
+
+    if (pid_son_process != 0)
+    {
+        kill(SIGKILL, pid_son_process);
+        wait(&status);
+    }
+    exit(0);
+}
 
 /* MSG RECEBIDA DO EXEC POST */
 struct msg
@@ -117,7 +127,7 @@ struct tree_nodo
 
 typedef struct tree_nodo TreeNodo;
 
-int *all_ended, job = 0;
+int job = 0;
 int topology;
 NodoHypercube hypercube[16];
 NodoTorus torus[16];
