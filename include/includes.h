@@ -33,13 +33,6 @@ struct msg
     char arq_executavel[100];
 };
 
-/* MSG RECEBIDA DO EXEC POST */
-struct msg_all_ended
-{
-    long id;
-    bool all_ended;
-};
-
 /* MSG ENVIADA PARA OS NÓS */
 struct msg_nodo
 {
@@ -105,8 +98,8 @@ typedef enum topology TopologyTypes;
 struct nodo
 {
     int pid;
-    int state;
-    int neighbor[4];
+    int msg_rcv_number;
+    int neighbor[2];
 };
 
 typedef struct nodo NodoHypercube;

@@ -35,16 +35,14 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
     struct end_msg msg_2_snd;
     struct end_msg msg_exec_end;
     struct msg_nodo msg_exec_name;
-    struct msg_all_ended msg_all_ended;
 
     int exec_end, exec_init;
 
     int pid;
-    all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
+    // all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
 
     msg_exec_name.pid = -1;
     msg_exec_end.position = -1;
-    msg_all_ended.id = -1;
 
     int snd_end_neighbor = 50;
     for (int i = 0; i < 4; i++)
@@ -100,7 +98,6 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
             msg_2_snd.end_info[2] = exec_end;
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
-            printf("NÓ %d TERMINOU! ALL_ENDED: %d\n", my_position, my_position + ALL_ENDED_DELTA);
             while (1)
             {
                 // printf("ESPERANDO MSG FILHOS NO %d\n", my_position);
@@ -114,24 +111,22 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
                     msg_exec_end.position = -1;
                 }
 
-                msgrcv(msgid_nodo_snd_file, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), my_position + ALL_ENDED_DELTA, IPC_NOWAIT);
-                if (msg_all_ended.id != -1)
-                {
-                    printf("NO %d RECEBE ALL_ENDED!!\n", my_position);
-                    for (int i = 0; i < 4; i++)
-                    {
-                        /* MANDA PARA OS VIZINHOS */
-                        msg_all_ended.id = my_nodo.neighbor[i] + ALL_ENDED_DELTA;
-                        msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
-                    }
+                // msgrcv(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), my_position + ALL_ENDED_DELTA, IPC_NOWAIT);
 
-                    msg_all_ended.id = snd_end_neighbor + ALL_ENDED_DELTA;
-                    msgsnd(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
-                    break;
-                }
+                // if (msg_all_ended.id != -1)
+                // {
+                //     for (int i = 0; i < 4; i++)
+                //     {
+                //         /* MANDA PARA OS VIZINHOS */
+                //         msg_all_ended.id = my_nodo.neighbor[i] + ALL_ENDED_DELTA;
+                //         msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
+                //     }
+
+                //     msg_all_ended.id = snd_end_neighbor + ALL_ENDED_DELTA;
+                //     msgsnd(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
+                //     break;
+                // }
             }
-
-            printf("NÓ %d SAIU ALL_ENDED!\n", my_position);
 
             msg_exec_name.pid = -1;
         }
@@ -140,38 +135,37 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int sh
     shmdt((char *)0);
 }
 
-void wait_all_ended(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, struct msg_all_ended msg_all_ended)
-{
-    int count_ended = 15;
+// void wait_all_ended(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, struct msg_all_ended msg_all_ended)
+// {
+//     int count_ended = 15;
 
-    msg_all_ended.id = -1;
+//     msg_all_ended.id = -1;
 
-    while (count_ended != 0)
-    {
-        msgrcv(msgid_nodo_rcv_end, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), ALL_ENDED_DELTA, IPC_NOWAIT);
-        if (msg_all_ended.id != -1)
-        {
-            printf("MSG RECEIVED FROM %ld \n", msg_all_ended.id);
-            count_ended--;
-            msg_all_ended.id = -1;
-        }
-    }
+//     while (count_ended != 0)
+//     {
+//         msgrcv(msgid_nodo_rcv_end, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), ALL_ENDED_DELTA, IPC_NOWAIT);
+//         if (msg_all_ended.id != -1)
+//         {
+//             printf("MSG RECEIVED FROM %ld \n", msg_all_ended.id);
+//             count_ended--;
+//             msg_all_ended.id = -1;
+//         }
+//     }
 
-    do
-    {
-        msg_all_ended.id = -1;
-        msgrcv(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0, IPC_NOWAIT);
-    } while (msg_all_ended.id != -1);
+//     do
+//     {
+//         msg_all_ended.id = -1;
+//         msgrcv(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0, IPC_NOWAIT);
+//     } while (msg_all_ended.id != -1);
 
-    msg_all_ended.id = getpid();
-    msgsnd(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
-}
+//     msg_all_ended.id = getpid();
+//     msgsnd(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
+// }
 
 void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int shmid_all_ended, NodoHypercube my_nodo)
 {
     struct end_msg msg_2_snd;
     struct end_msg msg_exec_end;
-    struct msg_all_ended msg_all_ended;
 
     struct msg_nodo msg_exec_name;
     int exec_end, exec_init;
@@ -180,7 +174,6 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int 
 
     msg_exec_name.pid = -1;
     msg_exec_end.position = -1;
-    msg_all_ended.id = -1;
 
     while (1)
     {
@@ -243,21 +236,23 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int 
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
                     msg_exec_end.position = -1;
                 }
-
+                /* 
                 msgrcv(msgid_nodo_snd_file, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), ALL_ENDED_DELTA, IPC_NOWAIT);
                 if (msg_all_ended.id != -1)
                 {
                     printf("MSG RECEBIDA ALL_ENDED!!\n");
                     for (int i = 0; i < 4; i++)
                     {
-                        /* MANDA PARA OS VIZINHOS */
+                        /* MANDA PARA OS VIZINHOS 
                         msg_all_ended.id = my_nodo.neighbor[i] + ALL_ENDED_DELTA;
                         printf("VIZINHOS NÓ 0: %ld\n", msg_all_ended.id);
                         msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), 0);
                     }
                     wait_all_ended(msgid_nodo_snd_file, msgid_nodo_rcv_end, msg_all_ended);
-                    break;
+                    break; 
+                
                 }
+                */
             }
             printf("NÓ 0 SAIU ALL_ENDED!\n");
 
@@ -265,6 +260,6 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int 
         }
     }
 
-    shmdt((char *)0);
+    // shmdt((char *)0);
 }
 #endif

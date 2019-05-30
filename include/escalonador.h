@@ -7,8 +7,6 @@
 #include "../include/tree.h"
 #include "../include/queue_control.h"
 
-int time_init;
-
 struct msg_nodo msg_2_nodo0;
 int msgid_nodo_snd_file, pid_nodo0, msgid_escale, msgid_nodo_rcv_end, shmid_all_ended;
 bool is_executing = false;
@@ -25,17 +23,17 @@ void end_program()
 
         if (topology == 0)
         {
-            kill(hypercube[i].pid, SIGKILL);
+            kill(hypercube[i].pid, SIGTERM);
             wait(&status);
         }
         else if (topology == 1)
         {
-            kill(torus[i].pid, SIGKILL);
+            kill(torus[i].pid, SIGTERM);
             wait(&status);
         }
         else
         {
-            kill(tree[i].pid, SIGKILL);
+            kill(tree[i].pid, SIGTERM);
             wait(&status);
         }
     }
@@ -143,7 +141,13 @@ void manda_exec_prog()
             att_time(get_first_sec());
             printf("INICIANDO EXECUCAO DO JOB %d - %s\n\n", ready_queue->init->job, ready_queue->init->arq_executavel);
             /* REMOVE DA LISTA READY PARA A RUN */
-            from_ready_to_run();
+            struct queue_nodo *nodo = ready_queue->init;
+
+            while (nodo != NULL && nodo->sec <= 0)
+            {
+                from_ready_to_run();
+                nodo = nodo->next;
+            }
         }
 
         // printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
@@ -152,14 +156,19 @@ void manda_exec_prog()
         *all_ended = 0;
 
         msgsnd(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0);
-        time_init = (int)time(NULL);
     }
     else
     {
         att_time(get_first_sec());
 
         /* REMOVE DA LISTA READY PARA A RUN */
-        from_ready_to_run();
+        struct queue_nodo *nodo = ready_queue->init;
+
+        while (nodo != NULL && nodo->sec <= 0)
+        {
+            from_ready_to_run();
+            nodo = nodo->next;
+        }
     }
 
     /* SETA O PROX ALARM */
@@ -181,6 +190,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     printf("Escalonator Ready for execution\n");
     msg_2_nodo0.pid = pid_nodo0;
     msgid_nodo_snd_file = msgget(KEY_NODO_FILE, 0x1FF);
+    int time_init, time_end;
 
     /* SETA FUNÇÃO QUE SERÁ EXEC QUANDO RECEBER O ALARM */
     signal(SIGALRM, manda_exec_prog);
@@ -188,7 +198,6 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     int alarm_countdown, count_end = count_end_origin;
     struct msg msg_from_exec_post;
     struct end_msg msg_from_nodo0;
-    struct msg_all_ended msg_all_ended;
     all_ended = (int *)shmat(shmid_all_ended, (char *)0, 0);
     *all_ended = 0;
 
@@ -203,9 +212,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
     /* SETA LONG -1 PARA MOSTRAR QUE N TEM MSG NOVA (PRIMEIRA MSG JÁ TRATADA ACIMA) */
     msg_from_exec_post.sec = -1;
     msg_from_nodo0.position = -1;
-    /* SETA ALL_ENDED INFO */
-    msg_all_ended.id = ALL_ENDED_DELTA;
-    msg_all_ended.all_ended = true;
+
     while (1)
     {
         /* ESPERA MSG DO EXEC POST OU DO NÓ 0 INFORMANDO QUE ALGUM NÓ ACABOU DE EXEC */
@@ -242,17 +249,38 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 }
             }
             msg_from_exec_post.sec = -1;
+            printf("\n============QUEUE INFO============\n");
+            printf("READY: ");
+            print_queue(ready_queue);
+            printf("RUN: ");
+            print_queue(run_queue);
+            printf("ENDED: ");
+            print_queue(ended_queue);
+            printf("\n==================================\n\n");
         }
 
         if (msg_from_nodo0.position != -1)
         {
 
+            if (count_end == count_end_origin)
+            {
+                time_init = msg_from_nodo0.end_info[1];
+                time_end = msg_from_nodo0.end_info[2];
+            }
+            else if (msg_from_nodo0.end_info[1] < time_init)
+            {
+                time_init = msg_from_nodo0.end_info[1];
+            }
+
+            if (msg_from_nodo0.end_info[2] < time_end)
+            {
+                time_end = msg_from_nodo0.end_info[2];
+            }
+
             count_end--;
 
             if (count_end == 0)
             {
-                is_executing = false;
-
                 char init[30], end[30];
 
                 printf("TERMINANDO EXECUCAO DO JOB %d - %s\n\n", run_queue->init->job, run_queue->init->arq_executavel);
@@ -260,7 +288,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 struct tm *tm_init = localtime(&init_time);
                 strftime(init, 30, "%d/%m/%Y, %H:%M:%S", tm_init);
                 printf("Hora de inicio: %s\n", init);
-                time_t end_time = (time_t)msg_from_nodo0.end_info[2];
+                time_t end_time = (time_t)time_end;
                 struct tm *tm_end = localtime(&end_time);
                 strftime(end, 30, "%d/%m/%Y, %H:%M:%S", tm_end);
                 printf("Hora de termino: %s\n\n", end);
@@ -276,21 +304,10 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int shmid_all_en
                 print_queue(ended_queue);
                 printf("\n==================================\n\n");
 
-                //LIMPA FILA
-                do
-                {
-                    msg_2_nodo0.pid = -1;
-                    msgrcv(msgid_nodo_snd_file, &msg_2_nodo0, sizeof(msg_2_nodo0) - sizeof(long), 0, IPC_NOWAIT);
-                } while (msg_2_nodo0.pid != -1);
-
                 msg_2_nodo0.pid = pid_nodo0;
                 count_end = count_end_origin;
-                msgsnd(msgid_nodo_snd_file, &msg_all_ended, sizeof(&msg_all_ended) - sizeof(long), IPC_NOWAIT);
-                printf("MSG ENVIADA ALL_ENDED!!\n");
+                is_executing = false;
 
-                msg_all_ended.id = -1;
-                msgrcv(msgid_nodo_rcv_end, &msg_all_ended, sizeof(msg_all_ended) - sizeof(long), pid_nodo0, 0);
-                printf("NAO BOLOQUEOU E A MSG FOI: %ld", msg_all_ended.id);
                 if (!is_empty(run_queue))
                 {
                     manda_exec_prog();

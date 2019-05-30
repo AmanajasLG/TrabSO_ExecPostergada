@@ -248,17 +248,7 @@ int from_run_to_ended(time_t init_time, time_t end_time)
     struct queue_nodo *nodo = run_queue->init;
     run_queue->init = run_queue->init->next;
 
-    return 1;
-}
-
-int insert_queue_run()
-{
-}
-
-/* ENDED QUEUE CONTROLLER */
-int insert_queue_ended(time_t init_time, time_t end_time)
-{
-
+    free(nodo);
     return 1;
 }
 
