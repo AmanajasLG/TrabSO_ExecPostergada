@@ -90,9 +90,9 @@ struct execution_node
 /*Definindo o cabeçalho*/
 enum state
 {
-    BLOCKED = 0,
-    READY,
-    RUNNING,
+    READY = 0,
+    RUN,
+    ENDED,
 };
 typedef enum states StateTypes;
 

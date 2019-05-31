@@ -42,19 +42,6 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
-    signal(SIGTERM, end_program);
-    ready_queue = start_queue();
-    run_queue = start_queue();
-    ended_queue = start_queue();
-
-    if (ready_queue == NULL || run_queue == NULL || ended_queue == NULL)
-    {
-        printf("Fila não criada\n");
-        exit(1);
-    }
-
-    sleep(5);
-
     int my_position, count_end_origin;
 
     switch (topology)
