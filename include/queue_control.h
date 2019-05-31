@@ -147,26 +147,30 @@ int from_ready_to_run()
 
 int insert_queue_ready(struct msg insert_msg)
 {
+    struct queue_nodo *new_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
+
     if (ready_queue == NULL)
         return 0;
-    struct queue_nodo *new_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
 
     if (new_nodo == NULL)
         return 0;
 
     new_nodo->end_time = 0;
-    new_nodo->init_time = 0;
+    new_nodo->origin_sec = (int)insert_msg.sec;
     new_nodo->job = job;
-    new_nodo->origin_sec = insert_msg.sec;
+    new_nodo->init_time = 0;
     new_nodo->sec = insert_msg.sec;
     strcpy(new_nodo->arq_executavel, insert_msg.arq_executavel);
+
     new_nodo->next = NULL;
+
     if (ready_queue->init == NULL)
     { //empty queue
         ready_queue->init = new_nodo;
     }
     else
     {
+
         struct queue_nodo *tmp = ready_queue->init;
         struct queue_nodo *previous = NULL;
 

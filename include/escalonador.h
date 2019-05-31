@@ -38,7 +38,11 @@ void end_program()
         }
     }
 
-    struct queue_nodo *aux_nodo = (struct queue_nodo *)malloc(sizeof(struct queue_nodo));
+    msgctl(msgid_escale, IPC_RMID, NULL);
+    msgctl(msgid_nodo_snd_file, IPC_RMID, NULL);
+    msgctl(msgid_nodo_rcv_end, IPC_RMID, NULL);
+
+    struct queue_nodo *aux_nodo = (struct queue_nodo *)calloc(1, sizeof(struct queue_nodo));
     printf("\nO ESCALONADOR SERA INTERROMPIDO!\nOS PROGRAMAS ABAIXO NAO SERAO EXECUTADOS:\n\n");
     aux_nodo = ready_queue->init;
 
@@ -74,9 +78,7 @@ void end_program()
         aux_nodo = aux_nodo->next;
     }
     /* DESTROI FILAS E LISTAS */
-    msgctl(msgid_escale, IPC_RMID, NULL);
-    msgctl(msgid_nodo_snd_file, IPC_RMID, NULL);
-    msgctl(msgid_nodo_rcv_end, IPC_RMID, NULL);
+
     free_queue(ready_queue);
     free_queue(run_queue);
     free_queue(ended_queue);
@@ -142,9 +144,12 @@ void manda_exec_prog()
 
             while (nodo != NULL && nodo->sec <= 0)
             {
+                // printf("MOVE DENTRO IS_EXEC\n");
                 from_ready_to_run();
                 nodo = nodo->next;
             }
+            /* SETA O PROX ALARM */
+            alarm(get_first_sec());
         }
 
         // printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
@@ -162,13 +167,14 @@ void manda_exec_prog()
 
         while (nodo != NULL && nodo->sec <= 0)
         {
+            // printf("MOVE FORA IS_EXEC\n");
             from_ready_to_run();
             nodo = nodo->next;
         }
-    }
 
-    /* SETA O PROX ALARM */
-    alarm(get_first_sec());
+        /* SETA O PROX ALARM */
+        alarm(get_first_sec());
+    }
 
     printf("\n============QUEUE INFO============\n");
     printf("READY: ");
@@ -216,8 +222,10 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
         // -1 significa que n chegou mensagem
         if (msg_from_exec_post.sec != -1)
         {
+
             alarm_countdown = alarm(0);
             att_time(alarm_countdown);
+
             // print_queue(ready_queue);
             if (msg_from_exec_post.sec < alarm_countdown)
             {
@@ -227,7 +235,9 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
             }
             else
             {
+
                 insert_queue_ready(msg_from_exec_post);
+
                 job++;
                 if (alarm_countdown == 0 && ready_queue->init->sec == 0)
                 {
@@ -242,15 +252,8 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
                     alarm(alarm_countdown);
                 }
             }
+
             msg_from_exec_post.sec = -1;
-            printf("\n============QUEUE INFO============\n");
-            printf("READY: ");
-            print_queue(ready_queue);
-            printf("RUN: ");
-            print_queue(run_queue);
-            printf("ENDED: ");
-            print_queue(ended_queue);
-            printf("\n==================================\n\n");
         }
 
         if (msg_from_nodo0.position != -1)
@@ -288,15 +291,6 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
                 printf("Hora de termino: %s\n\n", end);
 
                 from_run_to_ended(init_time, end_time);
-
-                printf("\n============QUEUE INFO============\n");
-                printf("READY: ");
-                print_queue(ready_queue);
-                printf("RUN: ");
-                print_queue(run_queue);
-                printf("ENDED: ");
-                print_queue(ended_queue);
-                printf("\n==================================\n\n");
 
                 msg_2_nodo0.pid = pid_nodo0;
                 count_end = count_end_origin;

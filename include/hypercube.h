@@ -24,8 +24,8 @@ void create_hypercube(NodoHypercube hypercube[16])
     hypercube[15].neighbor[0] = 7;
 
     hypercube[0].msg_rcv_number = 15;
-    hypercube[1].msg_rcv_number = 3;
-    hypercube[2].msg_rcv_number = 7;
+    hypercube[1].msg_rcv_number = 7;
+    hypercube[2].msg_rcv_number = 3;
     hypercube[3].msg_rcv_number = 3;
     hypercube[4].msg_rcv_number = 1;
     hypercube[5].msg_rcv_number = 1;
@@ -139,14 +139,15 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
 
                 if (msg_exec_end.position != -1)
                 {
+                    printf("NO %d RECEBEU VIZINHO %d\n", my_position, msg_exec_end.end_info[0]);
                     msg_exec_end.position = my_nodo.neighbor[1] + 1;
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
+
+                    msg_exec_end.position = -1;
 
                     msg_rcv--;
                     if (msg_rcv == 0)
                         break;
-
-                    msg_exec_end.position = -1;
                 }
             }
             msg_rcv = my_nodo.msg_rcv_number;
@@ -227,14 +228,15 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
                 msgrcv(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 1, IPC_NOWAIT);
                 if (msg_exec_end.position != -1)
                 {
+                    printf("NO 0 RECEBEU VIZINHO %d\n", msg_exec_end.end_info[0]);
                     msg_exec_end.position = getpid();
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
+
+                    msg_exec_end.position = -1;
 
                     msg_rcv--;
                     if (msg_rcv == 0)
                         break;
-
-                    msg_exec_end.position = -1;
                 }
             }
             msg_rcv = my_nodo.msg_rcv_number;

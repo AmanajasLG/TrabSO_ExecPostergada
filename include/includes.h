@@ -122,7 +122,7 @@ struct tree_nodo
     int parent;
     int right;
     int left;
-    int state;
+    int msg_rcv_number;
 };
 
 typedef struct tree_nodo TreeNodo;

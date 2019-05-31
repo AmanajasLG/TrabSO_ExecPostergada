@@ -167,11 +167,11 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_pos
                     msg_exec_end.position = my_nodo.neighbor[1] + 1;
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
 
+                    msg_exec_end.position = -1;
+
                     msg_rcv--;
                     if (msg_rcv == 0)
                         break;
-
-                    msg_exec_end.position = -1;
                 }
             }
 
@@ -254,10 +254,11 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoToru
                     msg_exec_end.position = getpid();
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
 
+                    msg_exec_end.position = -1;
+
                     msg_rcv--;
                     if (msg_rcv == 0)
                         break;
-                    msg_exec_end.position = -1;
                 }
             }
 

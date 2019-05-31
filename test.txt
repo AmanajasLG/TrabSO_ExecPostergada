@@ -1,70 +1,398 @@
-NICIANDO EXECUCAO DO JOB 0 - test
+============QUEUE INFO 1============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
 
 
-============QUEUE INFO============
-READY: Nodo 1(5) -> Nodo 14(20) -> Nodo 92(100) -> 
+============QUEUE INFO 1============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 2============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 3============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 4============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 5============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 6============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 7============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 8============
+READY: EMPTY
+RUN: EMPTY
+ENDED: EMPTY
+
+==================================
+
+INICIANDO EXECUCAO DO JOB 0 - test
+
+
+============QUEUE INFO 1============
+READY: EMPTY
 RUN: Nodo 0(10) -> 
 ENDED: EMPTY
 
 ==================================
 
 
-============QUEUE INFO============
-READY: Nodo 13(20) -> Nodo 91(100) -> 
-RUN: Nodo 0(10) -> Nodo 0(5) -> 
+============QUEUE INFO 1============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
 ENDED: EMPTY
 
 ==================================
 
-NÓ 0 TERMINOU!
-NÓ 3 TERMINOU! ALL_ENDED: 103
-NÓ 7 TERMINOU! ALL_ENDED: 107
-NÓ 14 TERMINOU! ALL_ENDED: 114
-NÓ 10 TERMINOU! ALL_ENDED: 110
-NÓ 15 TERMINOU! ALL_ENDED: 115
-NÓ 13 TERMINOU! ALL_ENDED: 113
-NÓ 2 TERMINOU! ALL_ENDED: 102
-NÓ 5 TERMINOU! ALL_ENDED: 105
-NÓ 11 TERMINOU! ALL_ENDED: 111
-NÓ 1 TERMINOU! ALL_ENDED: 101
-NÓ 12 TERMINOU! ALL_ENDED: 112
-NÓ 9 TERMINOU! ALL_ENDED: 109
-NÓ 8 TERMINOU! ALL_ENDED: 108
-NÓ 6 TERMINOU! ALL_ENDED: 106
-NÓ 4 TERMINOU! ALL_ENDED: 104
-TERMINANDO EXECUCAO DO JOB 0 - test
 
-Hora de inicio: 28/05/2019, 22:45:07
-Hora de termino: 28/05/2019, 22:45:17
-
-
-============QUEUE INFO============
-READY: Nodo 13(20) -> Nodo 91(100) -> 
-RUN: Nodo 0(5) -> 
-ENDED: Nodo 0(10) -> 
-
-==================================
-
-MSG ENVIADA ALL_ENDED!!
-MSG RECEBIDA ALL_ENDED!!
-VIZINHOS NÓ 0: 101
-VIZINHOS NÓ 0: 102
-VIZINHOS NÓ 0: 104
-VIZINHOS NÓ 0: 108
-INICIANDO EXECUCAO DO JOB 3 - test
-
-
-============QUEUE INFO============
-READY: Nodo 13(20) -> Nodo 91(100) -> 
-RUN: Nodo 0(5) -> 
-ENDED: Nodo 0(10) -> 
+============QUEUE INFO 2============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
 
 ==================================
 
 
-============QUEUE INFO============
-READY: Nodo 78(100) -> 
-RUN: Nodo 0(5) -> Nodo 0(20) -> 
-ENDED: Nodo 0(10) -> 
+============QUEUE INFO 3============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
 
 ==================================
+
+
+============QUEUE INFO 4============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 5============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 6============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 7============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 8============
+READY: EMPTY
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO DEPOIS DO INSERT============
+READY: Nodo 20(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+ALARM_COUNTDOWN = 0
+
+============QUEUE INFO 1============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 1============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 2============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 3============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 4============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 5============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 6============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 7============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 8============
+READY: Nodo 12(20) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO DEPOIS DO INSERT============
+READY: Nodo 12(20) -> Nodo 12(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+ALARM_COUNTDOWN != 0
+
+============QUEUE INFO 1============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 1============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 2============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 3============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 4============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 5============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 6============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 7============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 8============
+READY: Nodo 5(20) -> Nodo 5(12) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO DEPOIS DO INSERT============
+READY: Nodo 5(20) -> Nodo 5(12) -> Nodo 130(130) -> 
+RUN: Nodo 0(10) -> 
+ENDED: EMPTY
+
+==================================
+
+ALARM_COUNTDOWN != 0
+MSG FROM EXECT POST < ALARM_COUNTDOWN
+
+============QUEUE INFO 1============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 0(20) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 1============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 0(20) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 2============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 0(20) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 3============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 0(20) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 4============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 0(20) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 5============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 0(14) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 6============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 14(14) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 7============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 14(14) -> Nodo 0(12) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO 8============
+READY: Nodo 6(10) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 14(14) -> 
+ENDED: EMPTY
+
+==================================
+
+
+============QUEUE INFO DEPOIS DO INSERT============
+READY: Nodo 6(10) -> Nodo 14(14) -> Nodo 118(130) -> 
+RUN: Nodo 0(10) -> Nodo 14(14) -> Nodo 118(130) -> 
+ENDED: EMPTY
+
+==================================
+
+ALARM_COUNTDOWN != 0
