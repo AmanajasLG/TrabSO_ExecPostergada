@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #ifndef INCLUDES_H_
 
 #define INCLUDES_H_
@@ -17,10 +23,12 @@
 #include <sys/errno.h>
 #include <sys/wait.h>
 #include <sys/signal.h>
+#include <sys/shm.h>
 
-#define KEY_ESCALE 0x03718
+#define KEY_ESCALE 0x3718
 #define KEY_NODO_END 0x6659
 #define KEY_NODO_FILE 0x8274
+#define KEY_JOB 0x16005
 
 int pid_son_process = 0;
 
@@ -46,7 +54,7 @@ struct msg
 /* MSG ENVIADA PARA OS NÓS */
 struct msg_nodo
 {
-    long pid;
+    long id;
     char arq_executavel[100];
 };
 
@@ -127,7 +135,7 @@ struct tree_nodo
 
 typedef struct tree_nodo TreeNodo;
 
-int job = 0;
+int msgid_nodo_snd_file, pid_nodo0, msgid_escale, msgid_nodo_rcv_end, shmid_job;
 int topology;
 NodoHypercube hypercube[16];
 NodoTorus torus[16];

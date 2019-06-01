@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #ifndef TREE_H_
 
 #define TREE_H_
@@ -68,59 +74,59 @@ void print_tree(TreeNodo tree[15])
 
 /* 
     msg_2_snd -> MSG ENVIADA QUANDO TERMINA DE EXEC
-    msg_2_rcv_end -> MSG RECEBIDA QUANDO PROGRAMAS FILHOS ACABAM DE EXEC
-    msg_2_rcv -> MSG RECEBIDA COM O NOME DO PROG A SER EXEC
+    msg_exec_end -> MSG RECEBIDA QUANDO PROGRAMAS FILHOS ACABAM DE EXEC
+    msg_exec_name -> MSG RECEBIDA COM O NOME DO PROG A SER EXEC
 
     OBS: ID NA FILA É A POS NO VEC + 1 PQ 0 NÃO PODE SER ID
 */
 
-void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_position, TreeNodo my_nodo)
+void nodo_loop_tree(int my_position, TreeNodo my_nodo)
 {
     struct end_msg msg_2_snd;
-    struct end_msg msg_2_rcv_end;
-    struct msg_nodo msg_2_rcv;
+    struct end_msg msg_exec_end;
+    struct msg_nodo msg_exec_name;
     int exec_end, exec_init;
     int msg_rcv = my_nodo.msg_rcv_number;
 
-    msg_2_rcv.pid = -1;
-    msg_2_rcv_end.position = -1;
+    msg_exec_name.id = -1;
+    msg_exec_end.position = -1;
     while (1)
     {
 
         /* MSG DO ESCALONADOR */
-        msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), my_position + 1, IPC_NOWAIT);
+        msgrcv(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), my_position + 1, IPC_NOWAIT);
 
-        if (msg_2_rcv.pid != -1)
+        if (msg_exec_name.id != -1)
         {
             /* MANDA PARA O FILHO DA ESQUERDA SE HOUVER */
             if (my_nodo.left != -1)
             {
-                msg_2_rcv.pid = my_nodo.left + 1;
-                msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
+                msg_exec_name.id = my_nodo.left + 1;
+                msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
 
             /* MANDA PARA O FILHO DA DIREITA SE HOUVER */
             if (my_nodo.left != -1)
             {
-                msg_2_rcv.pid = my_nodo.right + 1;
-                msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
+                msg_exec_name.id = my_nodo.right + 1;
+                msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
             // separa nome arq do path
             char filename[100];
-            strcpy(filename, basename(msg_2_rcv.arq_executavel));
+            strcpy(filename, basename(msg_exec_name.arq_executavel));
 
-            // printf("RECEBE ARQUIVO %s\n",  msg_2_rcv.arq_executavel);
+            // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
             if ((pid_son_process = fork()) < 0)
             {
-                printf("Error on fork() -> %d\n", errno);
+                printf("Erro no fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
             if (pid_son_process == 0)
             {
-                execl(msg_2_rcv.arq_executavel, filename, (char *)0);
+                execl(msg_exec_name.arq_executavel, filename, (char *)0);
             }
 
             // espera no atual esperar de executar
@@ -141,13 +147,13 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_posi
             while (my_position < 7)
             {
                 /* MSG DOS FILHOS */
-                msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
-                if (msg_2_rcv_end.position != -1)
+                msgrcv(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), my_position + 1, IPC_NOWAIT);
+                if (msg_exec_end.position != -1)
                 {
-                    msg_2_rcv_end.position = my_nodo.parent + 1;
-                    msgsnd(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 0);
+                    msg_exec_end.position = my_nodo.parent + 1;
+                    msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
 
-                    msg_2_rcv_end.position = -1;
+                    msg_exec_end.position = -1;
 
                     msg_rcv--;
                     if (msg_rcv == 0)
@@ -155,56 +161,56 @@ void nodo_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_posi
                 }
             }
 
-            msg_2_rcv.pid = -1;
+            msg_exec_name.id = -1;
 
             msg_rcv = my_nodo.msg_rcv_number;
         }
     }
 }
 
-void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, TreeNodo my_nodo)
+void nodo_0_loop_tree(TreeNodo my_nodo)
 {
     struct end_msg msg_2_snd;
-    struct end_msg msg_2_rcv_end;
-    struct msg_nodo msg_2_rcv;
+    struct end_msg msg_exec_end;
+    struct msg_nodo msg_exec_name;
     int exec_end, exec_init;
     int msg_rcv = my_nodo.msg_rcv_number;
 
-    msg_2_rcv.pid = -1;
-    msg_2_rcv_end.position = -1;
+    msg_exec_name.id = -1;
+    msg_exec_end.position = -1;
     while (1)
     {
 
         /* MSG DO ESCALONADOR */
-        msgrcv(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), getpid(), IPC_NOWAIT);
+        msgrcv(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), getpid(), IPC_NOWAIT);
 
-        if (msg_2_rcv.pid != -1)
+        if (msg_exec_name.id != -1)
         {
             /* MANDA PARA O FILHO DA ESQUERDA */
-            msg_2_rcv.pid = my_nodo.left + 1;
-            msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
+            msg_exec_name.id = my_nodo.left + 1;
+            msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
 
             /* MANDA PARA O FILHO DA DIREITA */
-            msg_2_rcv.pid = my_nodo.right + 1;
-            msgsnd(msgid_nodo_snd_file, &msg_2_rcv, sizeof(msg_2_rcv) - sizeof(long), 0);
+            msg_exec_name.id = my_nodo.right + 1;
+            msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
 
             // separa nome arq do path
 
             char filename[100];
-            strcpy(filename, basename(msg_2_rcv.arq_executavel));
+            strcpy(filename, basename(msg_exec_name.arq_executavel));
 
             if ((pid_son_process = fork()) < 0)
             {
-                printf("Error on fork() -> %d\n", errno);
+                printf("Erro no fork() -> %d\n", errno);
                 continue;
             }
 
             exec_init = (int)time(NULL);
             if (pid_son_process == 0)
             {
-                if (execl(msg_2_rcv.arq_executavel, filename, (char *)0) < 0)
+                if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0)
                 {
-                    printf("ERR: execl failed: %d\n", errno);
+                    printf("Erro: execl falhou: %d\n", errno);
                 }
             }
 
@@ -225,12 +231,12 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, TreeNodo 
             while (1)
             {
                 /* MSG DOS FILHOS */
-                msgrcv(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 1, IPC_NOWAIT);
-                if (msg_2_rcv_end.position != -1)
+                msgrcv(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 1, IPC_NOWAIT);
+                if (msg_exec_end.position != -1)
                 {
-                    msg_2_rcv_end.position = getpid();
-                    msgsnd(msgid_nodo_rcv_end, &msg_2_rcv_end, sizeof(msg_2_rcv_end) - sizeof(long), 0);
-                    msg_2_rcv_end.position = -1;
+                    msg_exec_end.position = getpid();
+                    msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
+                    msg_exec_end.position = -1;
 
                     msg_rcv--;
                     if (msg_rcv == 0)
@@ -240,7 +246,7 @@ void nodo_0_loop_tree(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, TreeNodo 
 
             msg_rcv = my_nodo.msg_rcv_number;
 
-            msg_2_rcv.pid = -1;
+            msg_exec_name.id = -1;
         }
     }
 }

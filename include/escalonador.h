@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #ifndef ESCALONADOR_H_
 
 #define ESCALONADOR_H_
@@ -8,15 +14,16 @@
 #include "../include/queue_control.h"
 
 struct msg_nodo msg_2_nodo0;
-int msgid_nodo_snd_file, pid_nodo0, msgid_escale, msgid_nodo_rcv_end;
+int pid_nodo0;
 bool is_executing = false;
+int *job;
 
-// ?
 /* QUANDO PROG TERMINA LIBERA TUDO */
 void end_program()
 {
+    alarm(0);
     int status;
-    printf("Removing topologies, queues and shared memories...\n");
+    printf("Removendo topologia, filas e memoria compartilhada...\n");
     for (int i = 0; i < 16; i++)
     {
         if (topology == 2 && i == 15)
@@ -42,6 +49,8 @@ void end_program()
     msgctl(msgid_escale, IPC_RMID, NULL);
     msgctl(msgid_nodo_snd_file, IPC_RMID, NULL);
     msgctl(msgid_nodo_rcv_end, IPC_RMID, NULL);
+    shmdt(job);
+    shmctl(shmid_job, IPC_RMID, NULL);
 
     char init[30], end[30];
 
@@ -54,7 +63,7 @@ void end_program()
         else if (i == READY)
         {
             printf("\nO ESCALONADOR SERA INTERROMPIDO!\nOS PROGRAMAS ABAIXO NAO SERAO EXECUTADOS:\n\n");
-        } //falta incrmentar o job em algum lugar
+        }
 
         for (int j = 0; j < QUEUE_SIZE; j++)
         {
@@ -66,11 +75,11 @@ void end_program()
                 struct tm *tm_end = localtime(&queue_matrix[i][j].end_time);
                 strftime(end, 30, "%d/%m/%Y, %H:%M:%S", tm_end);
 
-                printf("JOB: %d FILE: %s SUBMISSON_TIME: %d INIT_TIME: [%s] END_TIME: [%s] MAKESPAN: %ld\n", queue_matrix[i][j].job, queue_matrix[i][j].arq_executavel, queue_matrix[i][j].origin_sec, init, end, queue_matrix[i][j].end_time - queue_matrix[i][j].init_time);
+                printf("JOB: %d ARQ: %s DELAY: %d INI_TIME: [%s] TERM_TIME: [%s] MAKESPAN: %ld\n", queue_matrix[i][j].job, queue_matrix[i][j].arq_executavel, queue_matrix[i][j].origin_sec, init, end, queue_matrix[i][j].end_time - queue_matrix[i][j].init_time);
             }
             else if ((i == READY && j < ready_queue_size) || (i == RUN && j < run_queue_size))
             {
-                printf("JOB: %d FILE: %s\n", queue_matrix[i][j].job, queue_matrix[i][j].arq_executavel);
+                printf("JOB: %d ARQ: %s\n", queue_matrix[i][j].job, queue_matrix[i][j].arq_executavel);
             }
             else
             {
@@ -114,8 +123,6 @@ void att_time_matrix(int alarm_countdown)
                 sub_time = queue_matrix[READY][i].sec - alarm_countdown;
                 queue_matrix[READY][i].sec = alarm_countdown;
             }
-            printf("SUB TIME %d\n", sub_time);
-            printf("ALARM COUNTDOWN %d\n", alarm_countdown);
         }
         else
         {
@@ -156,7 +163,7 @@ void manda_exec_prog()
             alarm(get_first_sec());
         }
 
-        printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.pid, msg_2_nodo0.arq_executavel);
+        printf("msg to nodo0 [ %ld | %s ]\n", msg_2_nodo0.id, msg_2_nodo0.arq_executavel);
 
         is_executing = true;
 
@@ -186,15 +193,21 @@ void manda_exec_prog()
 }
 
 /* LOOP COM AS FUNCIONALIDADES DO ESCALONADOR */
-void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_origin)
+void loop_escalonator(int count_end_origin)
 {
+    if ((shmid_job = shmget(KEY_JOB, sizeof(int), IPC_CREAT | 0x1FF)) < 0)
+    {
+        printf("A conexao com memoria compartilhada nao foi possivel!\n");
+        exit(1);
+    }
+    job = (int *)shmat(shmid_job, (void *)0, 0);
+
     signal(SIGTERM, end_program);
 
     struct msg msg_from_exec_post;
-    signal(SIGALRM, manda_exec_prog);
-    printf("Escalonator Ready for execution\n");
+    struct end_msg msg_from_nodo0;
 
-    msg_2_nodo0.pid = pid_nodo0;
+    msg_2_nodo0.id = pid_nodo0;
     msgid_nodo_snd_file = msgget(KEY_NODO_FILE, 0x1FF);
     int time_init, time_end;
 
@@ -203,13 +216,13 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
 
     int alarm_countdown, count_end = count_end_origin;
 
-    struct end_msg msg_from_nodo0;
+    printf("Escalonador pronto para execucao!\n");
 
     /* ESPERA A PRIMEIRA MGS BLOQ PQ SE AINDA N RECEBEU NENHUMA NÃO TEM O QUE FAZER */
     msgrcv(msgid_escale, &msg_from_exec_post, sizeof(msg_from_exec_post) - sizeof(long), 0, 0);
     printf("Recebendo mensagem primeiro exec post sec [%ld] file [%s]\n", msg_from_exec_post.sec, msg_from_exec_post.arq_executavel);
     insert_array_ready(msg_from_exec_post);
-    job++;
+    *job += 1;
     // print_queue(ready_queue);
     strcpy(msg_2_nodo0.arq_executavel, msg_from_exec_post.arq_executavel);
     alarm((int)msg_from_exec_post.sec);
@@ -229,32 +242,25 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
         // -1 significa que n chegou mensagem
         if (msg_from_exec_post.sec != -1)
         {
-            printf("Recebendo mensagem exec post job [%d] sec [%ld] file [%s]\n", job, msg_from_exec_post.sec, msg_from_exec_post.arq_executavel);
+            printf("Recebendo mensagem exec post job [%d] sec [%ld] file [%s]\n", *job, msg_from_exec_post.sec, msg_from_exec_post.arq_executavel);
             alarm_countdown = alarm(0);
             att_time_matrix(alarm_countdown);
 
             insert_array_ready(msg_from_exec_post);
-            job++;
+            *job += 1;
             if (alarm_countdown == 0 && queue_matrix[READY][0].sec == 0)
             { // aqui ele testa se é zero e chama a func
                 manda_exec_prog();
-                printf("Alarm set for %d\n", queue_matrix[READY][0].sec);
                 alarm(queue_matrix[READY][0].sec);
             }
             else if (alarm_countdown == 0)
             {
-                printf("Alarm set for %d\n", queue_matrix[READY][0].sec);
                 alarm(queue_matrix[READY][0].sec);
             }
             else
             {
-                printf("Alarm set for %d\n", alarm_countdown);
                 alarm(alarm_countdown);
             }
-
-            printf("\n============QUEUE INFO AFTER ADD============\n");
-            print_matrix();
-            printf("\n==================================\n\n");
 
             msg_from_exec_post.sec = -1;
         }
@@ -296,7 +302,7 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
 
                 run_to_ended(init_time, end_time);
 
-                msg_2_nodo0.pid = pid_nodo0;
+                msg_2_nodo0.id = pid_nodo0;
                 count_end = count_end_origin;
                 is_executing = false;
 
@@ -315,13 +321,8 @@ void loop_escalonator(int msgid_escale, int msgid_nodo_rcv_end, int count_end_or
 
                 if (run_queue_size > 0 || (queue_matrix[READY][0].sec == 0 && ready_queue_size > 0))
                 {
-                    printf("executando proximo da fila run\n");
                     manda_exec_prog();
                 }
-
-                printf("\n============QUEUE INFO ALL ENDED============\n");
-                print_matrix();
-                printf("\n==================================\n\n");
             }
             msg_from_nodo0.position = -1;
         }

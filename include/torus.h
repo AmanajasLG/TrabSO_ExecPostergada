@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #ifndef TORUS_H_
 
 #define TORUS_H_
@@ -94,7 +100,7 @@ void print_torus(NodoTorus torus[16])
     }
 }
 
-void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_position, NodoTorus my_nodo)
+void nodo_loop_torus(int my_position, NodoTorus my_nodo)
 {
     signal(SIGTERM, end_node);
 
@@ -104,7 +110,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_pos
     int exec_end, exec_init;
     int msg_rcv = my_nodo.msg_rcv_number;
 
-    msg_exec_name.pid = -1;
+    msg_exec_name.id = -1;
     msg_exec_end.position = -1;
 
     while (1)
@@ -113,12 +119,12 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_pos
         /* MSG DO ESCALONADOR */
         msgrcv(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), my_position + 1, IPC_NOWAIT);
 
-        if (msg_exec_name.pid != -1)
+        if (msg_exec_name.id != -1)
         {
             /* MANDA PARA OS VIZINHOS */
             if (my_position != 12)
             {
-                msg_exec_name.pid = my_nodo.neighbor[0] + 1;
+                msg_exec_name.id = my_nodo.neighbor[0] + 1;
                 msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
 
@@ -131,7 +137,7 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_pos
             //TODO ACABAR O PROGRAMA
             if ((pid_son_process = fork()) < 0)
             {
-                printf("Error on fork() -> %d\n", errno);
+                printf("Erro no fork() -> %d\n", errno);
                 continue;
             }
 
@@ -175,14 +181,14 @@ void nodo_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_pos
                 }
             }
 
-            msg_exec_name.pid = -1;
+            msg_exec_name.id = -1;
 
             msg_rcv = my_nodo.msg_rcv_number;
         }
     }
 }
 
-void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoTorus my_nodo)
+void nodo_0_loop_torus(NodoTorus my_nodo)
 {
     signal(SIGTERM, end_node);
     struct end_msg msg_2_snd;
@@ -193,7 +199,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoToru
 
     int pid;
 
-    msg_exec_name.pid = -1;
+    msg_exec_name.id = -1;
     msg_exec_end.position = -1;
 
     while (1)
@@ -202,10 +208,10 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoToru
         /* MSG DO ESCALONADOR */
         msgrcv(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), getpid(), IPC_NOWAIT);
 
-        if (msg_exec_name.pid != -1)
+        if (msg_exec_name.id != -1)
         {
             /* MANDA PARA OS VIZINHOS */
-            msg_exec_name.pid = my_nodo.neighbor[0] + 1;
+            msg_exec_name.id = my_nodo.neighbor[0] + 1;
             msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
 
             // separa nome arq do path
@@ -217,7 +223,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoToru
             //TODO ACABAR O PROGRAMA
             if ((pid_son_process = fork()) < 0)
             {
-                printf("Error on fork() -> %d\n", errno);
+                printf("Erro no fork() -> %d\n", errno);
                 continue;
             }
 
@@ -226,7 +232,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoToru
             {
                 if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0)
                 {
-                    printf("ERR: execl failed: %d\n", errno);
+                    printf("Erro: execl falhou: %d\n", errno);
                 }
             }
 
@@ -264,7 +270,7 @@ void nodo_0_loop_torus(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoToru
 
             msg_rcv = my_nodo.msg_rcv_number;
 
-            msg_exec_name.pid = -1;
+            msg_exec_name.id = -1;
         }
     }
 }

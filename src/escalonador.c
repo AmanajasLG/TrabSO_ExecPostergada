@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #include "../include/escalonador.h"
 
 int main(int argc, char const *argv[])
@@ -59,12 +65,12 @@ int main(int argc, char const *argv[])
                 if (my_position == 0)
                 {
 
-                    nodo_0_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, hypercube[0]);
+                    nodo_0_loop_hypercube(hypercube[0]);
                 }
                 else
                 {
 
-                    nodo_loop_hypercube(msgid_nodo_snd_file, msgid_nodo_rcv_end, my_position, hypercube[my_position]);
+                    nodo_loop_hypercube(my_position, hypercube[my_position]);
                 }
                 break;
             }
@@ -95,12 +101,12 @@ int main(int argc, char const *argv[])
                 if (my_position == 0)
                 {
 
-                    nodo_0_loop_torus(msgid_nodo_snd_file, msgid_nodo_rcv_end, torus[0]);
+                    nodo_0_loop_torus(torus[0]);
                 }
                 else
                 {
 
-                    nodo_loop_torus(msgid_nodo_snd_file, msgid_nodo_rcv_end, my_position, torus[my_position]);
+                    nodo_loop_torus(my_position, torus[my_position]);
                 }
                 break;
             }
@@ -131,12 +137,12 @@ int main(int argc, char const *argv[])
                 if (my_position == 0)
                 {
 
-                    nodo_0_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, tree[0]);
+                    nodo_0_loop_tree(tree[0]);
                 }
                 else
                 {
 
-                    nodo_loop_tree(msgid_nodo_snd_file, msgid_nodo_rcv_end, my_position, tree[my_position]);
+                    nodo_loop_tree(my_position, tree[my_position]);
                 }
                 break;
             }
@@ -160,7 +166,7 @@ int main(int argc, char const *argv[])
     // escalonador
     if (pid != 0)
     {
-        loop_escalonator(msgid_escale, msgid_nodo_rcv_end, count_end_origin);
+        loop_escalonator(count_end_origin);
     }
 
     return 0;

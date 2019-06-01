@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #ifndef HYPERCUBE_H_
 
 #define HYPERCUBE_H_
@@ -74,7 +80,7 @@ void print_hypercube(NodoHypercube hypercube[16])
     }
 }
 
-void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my_position, NodoHypercube my_nodo)
+void nodo_loop_hypercube(int my_position, NodoHypercube my_nodo)
 {
     signal(SIGTERM, end_node);
     struct end_msg msg_2_snd;
@@ -84,7 +90,7 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
 
     int exec_end, exec_init;
 
-    msg_exec_name.pid = -1;
+    msg_exec_name.id = -1;
     msg_exec_end.position = -1;
 
     while (1)
@@ -93,12 +99,12 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
         /* MSG DO ESCALONADOR */
         msgrcv(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), my_position + 1, IPC_NOWAIT);
 
-        if (msg_exec_name.pid != -1)
+        if (msg_exec_name.id != -1)
         {
             /* MANDA PARA OS VIZINHOS */ //na 2 vez n recebeu todas as mensagens ne?
             if (my_position != 1)
             {
-                msg_exec_name.pid = my_nodo.neighbor[0] + 1;
+                msg_exec_name.id = my_nodo.neighbor[0] + 1;
 
                 msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
@@ -111,7 +117,7 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
             //TODO ACABAR O PROGRAMA
             if ((pid_son_process = fork()) < 0)
             {
-                printf("Error on fork() -> %d\n", errno);
+                printf("Erro no fork() -> %d\n", errno);
                 continue;
             }
 
@@ -134,7 +140,6 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
             msg_2_snd.end_info[2] = exec_end;
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
-            printf("TERMINOU DE EXEC %d\n", my_position);
             while (my_position < 8)
             {
                 // printf("ESPERANDO MSG FILHOS NO %d\n", my_position);
@@ -143,7 +148,6 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
 
                 if (msg_exec_end.position != -1)
                 {
-                    printf("NO %d ENVIOU MSG DE %d PARA %d\n", my_position, msg_exec_end.end_info[0], my_nodo.neighbor[1]);
                     msg_exec_end.position = my_nodo.neighbor[1] + 1;
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
 
@@ -156,12 +160,12 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
             }
             msg_rcv = my_nodo.msg_rcv_number;
 
-            msg_exec_name.pid = -1;
+            msg_exec_name.id = -1;
         }
     }
 }
 
-void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, NodoHypercube my_nodo)
+void nodo_0_loop_hypercube(NodoHypercube my_nodo)
 {
     signal(SIGTERM, end_node);
     struct end_msg msg_2_snd;
@@ -173,7 +177,7 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
 
     int pid;
 
-    msg_exec_name.pid = -1;
+    msg_exec_name.id = -1;
     msg_exec_end.position = -1;
 
     while (1)
@@ -182,11 +186,11 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
         /* MSG DO ESCALONADOR */
         msgrcv(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), getpid(), IPC_NOWAIT);
 
-        if (msg_exec_name.pid != -1)
+        if (msg_exec_name.id != -1)
         {
             /* MANDA PARA OS VIZINHOS */
 
-            msg_exec_name.pid = my_nodo.neighbor[0] + 1;
+            msg_exec_name.id = my_nodo.neighbor[0] + 1;
             msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
 
             // separa nome arq do path
@@ -198,7 +202,7 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
             //TODO ACABAR O PROGRAMA
             if ((pid_son_process = fork()) < 0)
             {
-                printf("Error on fork() -> %d\n", errno);
+                printf("Erro no fork() -> %d\n", errno);
                 continue;
             }
 
@@ -207,7 +211,7 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
             {
                 if (execl(msg_exec_name.arq_executavel, filename, (char *)0) < 0)
                 {
-                    printf("ERR: execl failed: %d\n", errno);
+                    printf("Erro: execl falhou: %d\n", errno);
                 }
             }
 
@@ -232,21 +236,19 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
                 msgrcv(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 1, IPC_NOWAIT);
                 if (msg_exec_end.position != -1)
                 {
-                    printf("NO 0 RECEBEU VIZINHO %d\n", msg_exec_end.end_info[0]);
                     msg_exec_end.position = getpid();
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
 
                     msg_exec_end.position = -1;
 
                     msg_rcv--;
-                    printf("MSG RCV 0 - %d\n", msg_rcv);
                     if (msg_rcv == 0)
                         break;
                 }
             }
             msg_rcv = my_nodo.msg_rcv_number;
 
-            msg_exec_name.pid = -1;
+            msg_exec_name.id = -1;
         }
     }
 }

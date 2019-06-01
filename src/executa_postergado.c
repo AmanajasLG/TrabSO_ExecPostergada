@@ -1,10 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/types.h>
-#include <sys/msg.h>
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
 
 #include "../include/executa_postergado.h"
 
@@ -20,7 +18,7 @@ int cfile_exists(const char *filename)
 }
 int main(int argc, char const *argv[])
 {
-    int msgid;
+    int msgid, shmid;
 
     char *end;
     // char arq_executavel[100];
@@ -28,13 +26,13 @@ int main(int argc, char const *argv[])
 
     if (argc != 3)
     {
-        printf("Invalid number of args\n");
+        printf("Numero invalido de argumentos!\n");
         exit(1);
     }
     strtol(argv[1], &end, 10);
     if (*end != '\0')
     {
-        printf("First arg must be an int\n");
+        printf("Primeiro argumento deve ser um inteiro!\n");
         exit(1);
     }
     else
@@ -42,9 +40,9 @@ int main(int argc, char const *argv[])
         msg_2_send.sec = atoi(argv[1]);
     }
 
-    if (!cfile_exists(argv[2]))
+    if (access(argv[2], F_OK) == -1)
     {
-        printf("Invalid file\n");
+        printf("O arquivo enviado nao existe! Verifique o nome ou o path enviado!\n");
         exit(1);
     }
     else
@@ -52,16 +50,24 @@ int main(int argc, char const *argv[])
         strcpy(msg_2_send.arq_executavel, argv[2]);
     }
 
-    if ((msgid = msgget(KEY, 0x1FF)) < 0)
+    if ((msgid = msgget(KEY_QUEUE, 0x1FF)) < 0)
     {
-        printf("MSG List didnt able to be created");
+        printf("A conexao com lista de mensagem nao foi possivel!\n");
         exit(1);
     }
-    else
+
+    if ((shmid = shmget(KEY_JOB, sizeof(int), 0x1FF)) < 0)
     {
-        printf("\nMSG 2 send %ld %s to %d\n", msg_2_send.sec, msg_2_send.arq_executavel, msgid);
-        msgsnd(msgid, &msg_2_send, sizeof(msg_2_send) - sizeof(long), 0);
+        printf("A conexao com memoria compartilhada nao foi possivel!\n");
+        exit(1);
     }
+
+    int *job = (int *)shmat(shmid, (void *)0, 0);
+
+    printf("\njob: %d, arq exec: %s, delay: %ld\n", *job, msg_2_send.arq_executavel, msg_2_send.sec);
+    msgsnd(msgid, &msg_2_send, sizeof(msg_2_send) - sizeof(long), 0);
+
+    shmdt(job);
 
     return 0;
 }

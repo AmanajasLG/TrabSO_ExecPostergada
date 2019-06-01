@@ -1,3 +1,9 @@
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ */
+
 #ifndef QUEUE_CONTROL_H_
 
 #define QUEUE_CONTROL_H_
@@ -62,13 +68,20 @@ int insert_array_ready(struct msg insert_msg)
 {
     bool added = false;
 
+    if ((shmid_job = shmget(KEY_JOB, sizeof(int), IPC_CREAT | 0x1FF)) < 0)
+    {
+        printf("A conexao com memoria compartilhada nao foi possivel!\n");
+        exit(1);
+    }
+    int *job = (int *)shmat(shmid_job, (void *)0, 0);
+
     if (ready_queue_size == 0)
     {
 
         queue_matrix[READY][0].init_time = 0;
         queue_matrix[READY][0].end_time = 0;
         queue_matrix[READY][0].origin_sec = (int)insert_msg.sec;
-        queue_matrix[READY][0].job = job;
+        queue_matrix[READY][0].job = *job;
         queue_matrix[READY][0].sec = insert_msg.sec;
         strcpy(queue_matrix[READY][0].arq_executavel, insert_msg.arq_executavel);
         ready_queue_size++;
@@ -86,7 +99,7 @@ int insert_array_ready(struct msg insert_msg)
                 queue_matrix[READY][i].init_time = 0;
                 queue_matrix[READY][i].end_time = 0;
                 queue_matrix[READY][i].origin_sec = (int)insert_msg.sec;
-                queue_matrix[READY][i].job = job;
+                queue_matrix[READY][i].job = *job;
                 queue_matrix[READY][i].sec = insert_msg.sec;
                 strcpy(queue_matrix[READY][i].arq_executavel, insert_msg.arq_executavel);
                 ready_queue_size++;
@@ -97,18 +110,17 @@ int insert_array_ready(struct msg insert_msg)
 
         if (!added)
         {
-            printf("\n============QUEUE INFO !ADDED============\n");
-            print_matrix();
-            printf("\n==================================\n\n");
             queue_matrix[READY][ready_queue_size].init_time = 0;
             queue_matrix[READY][ready_queue_size].end_time = 0;
             queue_matrix[READY][ready_queue_size].origin_sec = (int)insert_msg.sec;
-            queue_matrix[READY][ready_queue_size].job = job;
+            queue_matrix[READY][ready_queue_size].job = *job;
             queue_matrix[READY][ready_queue_size].sec = insert_msg.sec;
             strcpy(queue_matrix[READY][ready_queue_size].arq_executavel, insert_msg.arq_executavel);
             ready_queue_size++;
         }
     }
+
+    shmdt(job);
 }
 
 int ready_to_run()
@@ -153,58 +165,6 @@ int run_to_ended(int init_time, int end_time)
         queue_matrix[RUN][i] = queue_matrix[RUN][i + 1];
     }
     run_queue_size--;
-}
-
-int insert_array_ready_first_pos(struct msg insert_msg)
-{
-    if (ready_queue_size == 0)
-    {
-
-        queue_matrix[READY][0].init_time = 0;
-        queue_matrix[READY][0].end_time = 0;
-        queue_matrix[READY][0].origin_sec = (int)insert_msg.sec;
-        queue_matrix[READY][0].job = job;
-        queue_matrix[READY][0].sec = insert_msg.sec;
-        strcpy(queue_matrix[READY][0].arq_executavel, insert_msg.arq_executavel);
-        ready_queue_size++;
-    }
-    else
-    {
-        for (int j = ready_queue_size; j >= 0; j--)
-        {
-            if (j == 0)
-            {
-                printf("NO  0  recebendo \n");
-                queue_matrix[READY][0].init_time = 0;
-                queue_matrix[READY][0].end_time = 0;
-                queue_matrix[READY][0].origin_sec = (int)insert_msg.sec;
-                queue_matrix[READY][0].job = job;
-                queue_matrix[READY][0].sec = insert_msg.sec;
-                strcpy(queue_matrix[READY][0].arq_executavel, insert_msg.arq_executavel);
-            }
-            else
-            {
-                printf("NO %d [%d] recebendo no %d [%d]\n", j + 1, queue_matrix[READY][j + 1].origin_sec, j, queue_matrix[READY][j].origin_sec);
-                queue_matrix[READY][j] = queue_matrix[READY][j - 1];
-            }
-        }
-        ready_queue_size++;
-    }
-}
-
-int is_empty_matrix(int queue_type)
-{
-    switch (queue_type)
-    {
-    case READY:
-        return (ready_queue_size == 0);
-
-    case RUN:
-        return (run_queue_size == 0);
-
-    case ENDED:
-        return (ended_queue_size == 0);
-    }
 }
 
 #endif
