@@ -50,11 +50,13 @@ void create_hypercube(NodoHypercube hypercube[16])
         n[3] = i ^ 0b1000;
 
         int snd_end_neighbor = 50;
+
         for (int j = 0; j < 4; j++)
         {
             if (n[j] < snd_end_neighbor)
-                hypercube[i].neighbor[1] = n[j];
+                snd_end_neighbor = n[j];
         }
+        hypercube[i].neighbor[1] = snd_end_neighbor; // COMMITA E MERGE NA MASTER HAHAHAHAHAHAHAHAH FLWS VLWS
     }
 }
 
@@ -93,10 +95,11 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
 
         if (msg_exec_name.pid != -1)
         {
-            /* MANDA PARA OS VIZINHOS */
+            /* MANDA PARA OS VIZINHOS */ //na 2 vez n recebeu todas as mensagens ne?
             if (my_position != 1)
             {
                 msg_exec_name.pid = my_nodo.neighbor[0] + 1;
+
                 msgsnd(msgid_nodo_snd_file, &msg_exec_name, sizeof(msg_exec_name) - sizeof(long), 0);
             }
             // separa nome arq do path
@@ -131,6 +134,7 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
             msg_2_snd.end_info[2] = exec_end;
 
             msgsnd(msgid_nodo_rcv_end, &msg_2_snd, sizeof(msg_2_snd) - sizeof(long), 0);
+            printf("TERMINOU DE EXEC %d\n", my_position);
             while (my_position < 8)
             {
                 // printf("ESPERANDO MSG FILHOS NO %d\n", my_position);
@@ -139,7 +143,7 @@ void nodo_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, int my
 
                 if (msg_exec_end.position != -1)
                 {
-                    printf("NO %d RECEBEU VIZINHO %d\n", my_position, msg_exec_end.end_info[0]);
+                    printf("NO %d ENVIOU MSG DE %d PARA %d\n", my_position, msg_exec_end.end_info[0], my_nodo.neighbor[1]);
                     msg_exec_end.position = my_nodo.neighbor[1] + 1;
                     msgsnd(msgid_nodo_rcv_end, &msg_exec_end, sizeof(msg_exec_end) - sizeof(long), 0);
 
@@ -235,6 +239,7 @@ void nodo_0_loop_hypercube(int msgid_nodo_snd_file, int msgid_nodo_rcv_end, Nodo
                     msg_exec_end.position = -1;
 
                     msg_rcv--;
+                    printf("MSG RCV 0 - %d\n", msg_rcv);
                     if (msg_rcv == 0)
                         break;
                 }
