@@ -1,0 +1,99 @@
+ERMINANDO EXECUCAO DO JOB 2 - test
+
+Hora de inicio: 31/05/2019, 23:31:53
+Hora de termino: 31/05/2019, 23:31:58
+
+executando proximo da fila run
+INICIANDO EXECUCAO DO JOB 0 - 
+
+msg to nodo0 [ 11992 | test ]
+
+============QUEUE INFO============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+
+============QUEUE INFO ALL ENDED============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+TERMINANDO EXECUCAO DO JOB 0 - 
+
+Hora de inicio: 31/05/2019, 23:31:58
+Hora de termino: 31/05/2019, 23:32:03
+
+executando proximo da fila run
+INICIANDO EXECUCAO DO JOB 0 - 
+
+msg to nodo0 [ 11992 | test ]
+
+============QUEUE INFO============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+
+============QUEUE INFO ALL ENDED============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+TERMINANDO EXECUCAO DO JOB 0 - 
+
+Hora de inicio: 31/05/2019, 23:32:03
+Hora de termino: 31/05/2019, 23:32:08
+
+executando proximo da fila run
+INICIANDO EXECUCAO DO JOB 0 - 
+
+msg to nodo0 [ 11992 | test ]
+
+============QUEUE INFO============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+
+============QUEUE INFO ALL ENDED============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+TERMINANDO EXECUCAO DO JOB 0 - 
+
+Hora de inicio: 31/05/2019, 23:32:08
+Hora de termino: 31/05/2019, 23:32:13
+
+executando proximo da fila run
+INICIANDO EXECUCAO DO JOB 0 - 
+pera acho que ja sei q q e
+msg to nodo0 [ 11992 | test ]
+
+============QUEUE INFO============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================
+
+
+============QUEUE INFO ALL ENDED============
+READY QUEUE [0] -> EMPTY
+RUN QUEUE [0] -> EMPTY
+ENDED QUEUE [3] -> Nodo 0(5 | 0) -> Nodo 0(10 | 1) -> Nodo 0(3 | 2) -> 
+
+==================================

@@ -1,6 +1,26 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int main(){
+#include <sys/ipc.h>
+#include <sys/signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-    printf("Hello World");
+// void end()
+// {
+//     exit(0);
+// }
+
+int main()
+{
+
+    /* signal(SIGALRM, end);
+    alarm(10);
+
+    while (1)
+        ; */
+
+    sleep(5);
+
+    return 0;
 }
