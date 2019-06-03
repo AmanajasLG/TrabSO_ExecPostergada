@@ -3,6 +3,11 @@
 Trabalho da disciplina de Sistemas Operacionais - Execução Multi-processo
 Postergada
 
+## Estrutura de arquivos
+ * 
+ *
+ *
+
 
 ## Estruturas de dados
 # Hypercube
@@ -30,4 +35,4 @@ Postergada
    - NODO <- NODO
 
 
-# MEMÓRIA COMPARTILHADA
+# MEMÓRIA COMPARTILHAD

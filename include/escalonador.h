@@ -2,6 +2,8 @@
  * @authors: 
  * @name Luíza Amanajás
  * @matricula 160056659
+ * @name Yuri Castro do Amaral
+ * @matricula 140033718
  */
 
 #ifndef ESCALONADOR_H_
@@ -117,7 +119,7 @@ void att_time_matrix(int alarm_countdown)
             {
                 sub_time = queue_matrix[READY][i].sec;
 
-            } //f GG 0/
+            }
             else
             {
                 sub_time = queue_matrix[READY][i].sec - alarm_countdown;
@@ -230,8 +232,8 @@ void loop_escalonator(int count_end_origin)
     /* SETA LONG -1 PARA MOSTRAR QUE N TEM MSG NOVA (PRIMEIRA MSG JÁ TRATADA ACIMA) */
     msg_from_exec_post.sec = -1;
     msg_from_nodo0.position = -1;
-    // 7649 TOP,bora resolver essa caralha, é na funcao run to ready?
-    // o job ta mudando quando ele vai pra primeira pos do run, mas fora isso ta tudo sussa
+    
+    
 
     while (1)
     {
@@ -288,9 +290,9 @@ void loop_escalonator(int count_end_origin)
             if (count_end == 0)
             {
                 char init[30], end[30];
-                //vou fazer um sh pra testes perai
+                
                 printf("TERMINANDO EXECUCAO DO JOB %d - %s\n\n", queue_matrix[RUN][0].job, queue_matrix[RUN][0].arq_executavel);
-                //pronto
+                
                 time_t init_time = (time_t)time_init;
                 struct tm *tm_init = localtime(&init_time);
                 strftime(init, 30, "%d/%m/%Y, %H:%M:%S", tm_init);
@@ -306,7 +308,7 @@ void loop_escalonator(int count_end_origin)
                 count_end = count_end_origin;
                 is_executing = false;
 
-                // o alarm ta zuado
+               
 
                 if ((alarm_countdown = alarm(0)) == 0)
                 {
@@ -331,4 +333,3 @@ void loop_escalonator(int count_end_origin)
 
 #endif
 
-// 14674

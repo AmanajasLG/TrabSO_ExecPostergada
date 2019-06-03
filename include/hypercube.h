@@ -2,6 +2,8 @@
  * @authors: 
  * @name Luíza Amanajás
  * @matricula 160056659
+ * @name Yuri Castro do Amaral
+ * @matricula 140033718
  */
 
 #ifndef HYPERCUBE_H_
@@ -62,7 +64,7 @@ void create_hypercube(NodoHypercube hypercube[16])
             if (n[j] < snd_end_neighbor)
                 snd_end_neighbor = n[j];
         }
-        hypercube[i].neighbor[1] = snd_end_neighbor; // COMMITA E MERGE NA MASTER HAHAHAHAHAHAHAHAH FLWS VLWS
+        hypercube[i].neighbor[1] = snd_end_neighbor; 
     }
 }
 
@@ -101,7 +103,7 @@ void nodo_loop_hypercube(int my_position, NodoHypercube my_nodo)
 
         if (msg_exec_name.id != -1)
         {
-            /* MANDA PARA OS VIZINHOS */ //na 2 vez n recebeu todas as mensagens ne?
+            /* MANDA PARA OS VIZINHOS */
             if (my_position != 1)
             {
                 msg_exec_name.id = my_nodo.neighbor[0] + 1;
@@ -114,7 +116,7 @@ void nodo_loop_hypercube(int my_position, NodoHypercube my_nodo)
 
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
-            //TODO ACABAR O PROGRAMA
+            
             if ((pid_son_process = fork()) < 0)
             {
                 printf("Erro no fork() -> %d\n", errno);
@@ -199,7 +201,7 @@ void nodo_0_loop_hypercube(NodoHypercube my_nodo)
 
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
-            //TODO ACABAR O PROGRAMA
+           
             if ((pid_son_process = fork()) < 0)
             {
                 printf("Erro no fork() -> %d\n", errno);

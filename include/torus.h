@@ -2,6 +2,8 @@
  * @authors: 
  * @name Luíza Amanajás
  * @matricula 160056659
+ * @name Yuri Castro do Amaral
+ * @matricula 140033718
  */
 
 #ifndef TORUS_H_
@@ -134,7 +136,7 @@ void nodo_loop_torus(int my_position, NodoTorus my_nodo)
 
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
-            //TODO ACABAR O PROGRAMA
+            
             if ((pid_son_process = fork()) < 0)
             {
                 printf("Erro no fork() -> %d\n", errno);
@@ -220,7 +222,7 @@ void nodo_0_loop_torus(NodoTorus my_nodo)
 
             // printf("RECEBE ARQUIVO %s\n",  msg_exec_name.arq_executavel);
 
-            //TODO ACABAR O PROGRAMA
+            
             if ((pid_son_process = fork()) < 0)
             {
                 printf("Erro no fork() -> %d\n", errno);

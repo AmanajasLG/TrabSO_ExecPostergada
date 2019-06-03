@@ -2,6 +2,8 @@
  * @authors: 
  * @name Luíza Amanajás
  * @matricula 160056659
+ * @name Yuri Castro do Amaral
+ * @matricula 140033718
  */
 
 #ifndef QUEUE_CONTROL_H_
@@ -17,8 +19,7 @@ int run_queue_size = 0;
 int ended_queue_size = 0;
 
 struct queue_nodo queue_matrix[3][QUEUE_SIZE];
-//COLEI AS 2 LA EM BAIXO, C JA ARRUMOU A LOOP ESCALONADOR?
-// mudei tudo que eu achei j
+
 void print_matrix()
 {
 

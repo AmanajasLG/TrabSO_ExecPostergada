@@ -2,6 +2,8 @@
  * @authors: 
  * @name Luíza Amanajás
  * @matricula 160056659
+ * @name Yuri Castro do Amaral
+ * @matricula 140033718
  */
 
 #ifndef INCLUDES_H_

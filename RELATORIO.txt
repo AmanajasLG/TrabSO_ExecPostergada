@@ -1,0 +1,129 @@
+
+/**
+ * @authors: 
+ * @name Luíza Amanajás
+ * @matricula 160056659
+ * @name Yuri Castro do Amaral
+ * @matricula 140033718
+ */
+
+    Este projeto conta com o escalonador, executa postergado e shutdown
+    
+    O escalonador deve ser executado primeiro, o executa_postergado após e 
+ , por fim, o envio do sinal de shutdown.
+
+============================================ESCALONADOR============================================
+
+compilação:
+    gcc src/escalonador.c -o <arq exe escalonador>
+execução:
+    ./<arq exe escalonador> <topologia> &
+
+topologia são números definidos pelo mapeamento seguinte:
+    0: hypercube
+    1: torus
+    2: fat tree
+
+O escalonador é responsável por decidir qual processo será executado
+pela topologia. A gerência de processos é feita por uma matriz aonde a
+primeira linha é a fila READY (responsável por ordenar os JOBS por
+tempo restante em relação ao início da execução), a  segunda linha
+é a fila RUN (responsável por ordenar os JOBS que já tiveram o tempo mínimo 
+atingido, mas que devem aguardar o processo atual terminar sua execução) e a
+terceira linha a fila ENDED (responsável por armazenar os jobs finalizados).
+
+No escalonador, a fila de mensagem (key=KEY_ESCALE, id=msgid_escale) é responsável
+por receber as mensagens do executa postergado e atribuir à fila READY.
+
+O escalonador informa quem irá executar através de um alarm configurado para o tempo restante
+do primeiro job da fila READY(este tempo é atualizado periodicamente). O SIGALRM é configurado 
+para mapear para a função manda_exec_prog com a primitiva signal.
+
+A comunicação, do nome do arquivo executável a ser executado em um dado momento, entre o escalonador
+e o nó 0 da topologia é feito através da fila de mensagens (key=KEY_NODO_FILE, id=msgid_nodo_snd_file)
+com a mensagem de mtype igual ao pid do nó 0. Esta mesma fila também é utilizada pelos restantes 
+dos nós gerentes de execução para enviar o nome do arquivo aos seus vizinhos dado uma rota específica
+pré-definida.
+
+Cada nó, executa um fork para criação de um processo que executará o programa com a primitiva execl,
+e aguarda que o mesmo termine com a primitiva wait.
+
+O envio do término de execução de cada nó gerente de execução é enviado por eles via fila de
+ mensagens(key=KEY_NODO_END, id=msgid_nodo_rcv_end) através de uma rota pré determinada, que 
+ obedece a topologia, até o escalonador.
+
+O job é fornecido do escalonador ao executa_postergado por uma variável compartilhada(key=KEY_JOB, id=shmid_job).
+Durante a execução, o escalonador exibe qual o número do JOB e o número do arquivo recebido pelo
+executa postergado:
+    
+    "Recebendo mensagem exec post job [<job>] sec [<seconds>] file [<arq_exec>]"
+
+Quando apropriado, envia a mensagem para os nós iniciarem a execução e imprime:
+    
+    "INICIANDO EXECUCAO DO JOB <job> - <arq_exec>"
+
+Ao decorrer da execução, em certos momentos, imprime as três listas de execução (READY, RUN ENDEND):
+    
+    ============QUEUE INFO============
+    READY QUEUE [<ready_queue_size>] -> Nodo <current_sec>(<original_sec> | <job>) -> Nodo <current_sec>(<original_sec> | <job>) 
+    RUN QUEUE [<run_queue_size>] -> Nodo <current_sec>(<original_sec>  | <job>) -> 
+    ENDED QUEUE [<ended_queue_size>] -> EMPTY
+    ==================================
+
+Ao finalizar a execução de um job por todos os nós, imprime:
+
+TERMINANDO EXECUCAO DO JOB <job> - <arq_exec>
+
+Hora de inicio: <init_time>
+Hora de termino: <end_time>
+
+===================================================================================================
+
+=========================================EXECUTA=POSTERGADO========================================
+
+compilação:
+    gcc src/executa_postergado.c -o <arq exe executa_postergado>
+execução:
+    ./<arq exe executa_postergado> <seconds> <arq_exec>
+
+O executa postergado envia mensagens ao escalonador utilizando a fila 
+(key=KEY_QUEUE, id=msgid). A key KEY_QUEUE é igual à KEY_ESCALE, os labels são diferentes apenas
+para melhor leitura. As mensagens enviadas contam com o delay de execução do arquivo, no mtype da mensagem,
+e o arquivo executável.
+
+Ao enviar um arquivo ao escalonador, o executa_postergado imprime:
+    job: <job>, arq exec: <arq_exec>, delay: <seconds>
+
+O job é lido de uma variável compartilhada entre o escalonador e executa_postergado(key=KEY_JOB, id=shmid).
+===================================================================================================
+
+=========================================SHUTDOWN========================================
+
+execução:
+    kill -s SIGTERM <pid_escalonador>
+
+O processo shutdown é configurado por um signal SIG_TERM em end_program no escalonador. 
+Esta função Remove todas as estruturas IPC criadas : msgid_escale, msgid_nodo_snd_file, msgid_nodo_rcv_end
+e shmid_job. Além disso, o escalonador envia um signal SIG_TERM com a primitiva kill para todos
+os nós da topologia. Cada nó gerente, em sua criação, configura um signal SIG_TERM que mapeia para
+a função end_node que "mata" os respectivos processos.
+
+Por fim, a seguinte mensagem é exibida:
+
+    O ESCALONADOR SERA INTERROMPIDO!
+    OS PROGRAMAS ABAIXO NAO SERAO EXECUTADOS:
+
+    JOB: <job> ARQ: <arq_exec>
+
+
+    OS PROGRAMAS A SEGUIR FORAM EXECUTADOS:
+
+    JOB: <job> ARQ: <arq_exec> DELAY: <seconds> INI_TIME: <init_time> TERM_TIME: <end_time> MAKESPAN: <turn_around>
+                                            ...
+===================================================================================================
+KEY_ESCALE == KEY_QUEUE  0x3718
+KEY_NODO_END 0x6659
+KEY_NODO_FILE 0x8274
+KEY_JOB 0x16005
+
+
